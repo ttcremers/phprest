@@ -1,6 +1,11 @@
 <?php
 /*
  * Created on Apr 24, 2008
+ * 
+ * Object that Represents a request.
+ * 
+ * TODO Major refectors are needed here. 
+ * TODO This class should implement an interface.
  */
 class Request {
 	public $method;

@@ -2,10 +2,6 @@
 /*
  * Created on Apr 24, 2008
  * 
- * You should never have to change anything in this code
- * if your sollution results in having to make changes here
- * your sollution is wrong (or the author made a mistake).
- * 
  * If you want to add functionality you probably want to extend 
  * the CoreService object.
  */

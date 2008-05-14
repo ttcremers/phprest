@@ -2,7 +2,6 @@
 /*
  * Created on Apr 24, 2008
  *
- * Resources ONLY work with simpel object (comparable with java POJOs)
  * It's the job of the Adapter to marshall and unmarshall content to 
  * object.
  * 
