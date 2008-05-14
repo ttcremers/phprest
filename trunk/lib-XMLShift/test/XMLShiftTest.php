@@ -60,6 +60,14 @@ class XMLShiftTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("Simpel xml object", $object->message);
 	}
 	
+	public function test_hasa_unmarshall() {
+		$xml = '<?xml version="1.0" encoding="UTF-8"?>
+		<demohasa><refobject id="1"/></demohasa>';
+		$object = $this->xmlShift->unmarshall($xml, new XmlDemoHasaObject());
+		if (!is_object($object->refObject))
+			$this->fail("was expecting an object but got: ".$object->refObject); 
+	}
+	
 	public function test_relational_marshall() {
 		$this->assertTrue(true);
 	}
@@ -127,4 +135,18 @@ class XmlDemoRefObject {
 		$this->message=$message;
 	}
 };
+
+/**
+ * @XmlRootElement: demohasa
+ */
+class XmlDemoHasaObject {
+	/**
+ 	 * @XmlRefID: XmlDemoRefObject
+ 	 */
+	public $refObject;
+	
+	public function setRefObject($object) {
+		$this->refObject=$object;
+	}
+}
 ?>
