@@ -1,4 +1,3 @@
-#php_value include_path .:/usr/share/php:/usr/share/php/propel/:/home/thomas/php-workspace/lib-phpREST:/home/thomas/php-workspace/lib-ReflectionAnnotate:/home/thomas/php-workspace/lib-XMLShift:/home/thomas/php-workspace/phpREST-Skeleton
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteCond %{REQUEST_URI} !proxy\.php$
