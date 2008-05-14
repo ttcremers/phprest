@@ -1,6 +1,10 @@
 <?php
-/*
+/**
  * Created on Apr 24, 2008
+ * 
+ * @description Object representing the response.
+ * 
+ * TODO This class should implement an interface.
  */
 class Response {
 	public $mimeType;

@@ -2,8 +2,8 @@
 /*
  * Created on Apr 24, 2008
  * 
- * CoreService does nothing more then routing request methods 
- * and calling the appropiet method on the adapter.
+ * CoreService routes request methods 
+ * and calls the appropriate method on the content adapter.
  */
 require_once 'ServiceInterface.php';
 class CoreService implements ServiceInterface {
