@@ -7,6 +7,7 @@
 /**
  * IDResolverInterface when implementing your own id resolver it should implement this interface.
  * @package XMLShift
+ * @example phpREST-Skeleton/TestIDResolver.php
  */
 interface IDResolverInterface {
 	/**
