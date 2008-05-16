@@ -1,8 +1,12 @@
 <?php
-/*
- * Created on Apr 24, 2008
- *
+/**
+ * @author ttcremers@gmail.com
+ * @copyright Lunatech Research B.V.
+ * @package phpREST
+ */
+/**
  * Read ini file with config info
+ * @package phpREST
  */
 class RESTServiceConfig {
 	// TODO refactor template + prefix to prevent duplication/mismatch

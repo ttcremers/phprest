@@ -1,11 +1,16 @@
 <?php
-/*
- * Created on Apr 24, 2008
- * 
+/**
+ * @author ttcremers@gmail.com
+ * @copyright Lunatech Research B.V.
+ * @package phpREST
+ */
+
+/**
  * Object that Represents a request.
  * 
- * TODO Major refectors are needed here. 
- * TODO This class should implement an interface.
+ * @todo A lot of refactors are needed here. 
+ * @todo This class should implement an interface.
+ * @package phpREST
  */
 class Request {
 	public $method;

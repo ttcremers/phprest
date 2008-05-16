@@ -1,6 +1,13 @@
 <?php
-/*
- * Created on Apr 24, 2008
+/**
+ * @author ttcremers@gmail.com
+ * @copyright Lunatech Research B.V.
+ * @package phpREST
+ */
+
+/**
+ * The service interface. If you need to implement your own custom Service object you need to implement this interface
+ * @package phpREST
  */
 interface ServiceInterface {
 	public function service($request, $response, $contentAdapter, $serviceConfig);
