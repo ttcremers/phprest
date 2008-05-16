@@ -2,19 +2,21 @@
 /**
  * @author ttcremers@gmail.com
  * @copyright Lunatech Research B.V. 2008
+ * @package XMLShift
  */
 require_once 'ClassAnnotation.php';
 require_once 'PropertyAnnotation.php';
 require_once 'XMLShiftException.php';
 /**
- * Provides functionality for marschalling and unmarshalling xml. Any object 
- * can be used as marshall/unmarshall object provided it's public class properties
- * are anotated. For unmarshalling is also expects a setter method for the property.
+ * Provides functionality for marschalling and unmarshalling xml. 
+ * 
+ * Any object can be used as marshall/unmarshall object provided its public class properties
+ * are anotated. For unmarshalling it also expects a setter method for the property.
  * @todo Access properties by there getter method
  * @todo Add an method to resolve one2one relationships (already has a test)
  * 
  * @example test/XMLShiftTest.php Multiple examples of how to use XMLShift 
- *
+ * @package XMLShift
  */
 class CoreXMLShift {
 	private $_idResolver;
