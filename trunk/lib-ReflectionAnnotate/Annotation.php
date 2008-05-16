@@ -1,10 +1,14 @@
 <?php
 /**
- * This interface should be implemented by the classes
- * that represent the different elements of a class that
+ * @author ttcremers@gmail.com
+ * @copyright Lunatech Research B.V. 2008
+ * @package ReflectionAnnotate
+ */
+
+/**
+ * Implementations of this interface represent the different elements of a class that
  * can be annotated.
- * 
- * @author ttcremers@gmail.com 29/04/2008
+ * @package ReflectionAnnotate
  */
 interface ReflectionAnnotate_Annotation {
 	
