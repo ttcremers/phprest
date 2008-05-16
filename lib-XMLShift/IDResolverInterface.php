@@ -2,7 +2,11 @@
 /**
  * @author ttcremers@gmail.com
  * @copyright Lunatech Research B.V 2008
+ * @package XMLShift
+ */
+/**
  * IDResolverInterface when implementing your own id resolver it should implement this interface.
+ * @package XMLShift
  */
 interface IDResolverInterface {
 	/**

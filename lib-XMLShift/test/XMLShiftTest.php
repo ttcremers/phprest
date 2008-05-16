@@ -1,13 +1,11 @@
 #!/usr/bin/php
 <?php
-/**
- * This class is based on pear.phpunit.de
- * you have to manualy add this channel as
- * the phpunit is the standard channel is  
- * outdated and unmaintained!
- * 
- * To test: phpunit XMLShiftTest.php
+/** 
+ * @author ttcremers@gmail.com
+ * @copyright Lunatech Research B.V. 2008
+ * @package XMLShift
  */
+
 $sys_include_path=ini_get('include_path');
 $lib_reflection_path=realpath("../../lib-ReflectionAnnotate");
 ini_set('include_path', "$sys_include_path:../:$lib_reflection_path:/usr/share/php");
@@ -15,6 +13,16 @@ ini_set('include_path', "$sys_include_path:../:$lib_reflection_path:/usr/share/p
 require_once 'PHPUnit/Framework.php';
 require_once 'CoreXMLShift.php';
 
+/**
+ * Unit tests
+ * 
+ * This class is based on pear.phpunit.de
+ * you have to manualy add this channel as
+ * the phpunit is the standard channel is  
+ * outdated and unmaintained!
+ * 
+ * To test: phpunit XMLShiftTest.php
+ */
 class XMLShiftTest extends PHPUnit_Framework_TestCase {
 	protected $xmlDemoObject;
 	protected $xmlDemoRefObject;
@@ -81,6 +89,8 @@ class XMLShiftTest extends PHPUnit_Framework_TestCase {
 // Some simple test objects with which we can (un)marshall
 
 /**
+ * @package XMLShift
+ * 
  * @XmlRootElement: demo
  */
 class XmlDemoObject {
@@ -114,6 +124,8 @@ class XmlDemoObject {
 };
 
 /**
+ * @package XMLShift
+ * 
  * @XmlRootElement: demo
  */
 class XmlDemoRefObject {
@@ -137,6 +149,8 @@ class XmlDemoRefObject {
 };
 
 /**
+ * @package XMLShift
+ * 
  * @XmlRootElement: demohasa
  */
 class XmlDemoHasaObject {
