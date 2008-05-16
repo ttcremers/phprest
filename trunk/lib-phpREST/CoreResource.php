@@ -1,13 +1,20 @@
 <?php
-/*
- * Created on Apr 24, 2008
- *
+/**
+ * @author ttcremers@gmail.com
+ * @copyright Lunatech Research B.V.
+ * @package phpREST
+ */
+
+require_once 'ResourceInterface.php';
+/**
  * It's the job of the Adapter to marshall and unmarshall content to 
  * object.
- * 
  * The setup method is called from CoreService to setup the resource object
+ * 
+ * @see AdapterInterface
+ * @see CoreService
+ * @package phpREST
  */
-require_once 'ResourceInterface.php';
 abstract class CoreResource implements ResourceInterface {
 	abstract protected function create($object, $response);
 	abstract protected function update($object, $response);

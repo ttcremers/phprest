@@ -1,10 +1,16 @@
 <?php
-/*
- * Created on Apr 24, 2008
+/**
+ * @author ttcremers@gmail.com
+ * @copyright Lunatech Research B.V.
+ * @package phpREST
  */
 require_once 'AdapterInterface.php';
 require_once 'CoreXMLShift.php';
 
+/**
+ * An phpREST content Adapter to parse and write xml content bodys
+ * @package phpREST
+ */
 class XMLAdapter implements AdapterInterface {
 	
 	public function bodyRead(Request $request, RESTServiceConfig $serviceConfig) {

@@ -1,6 +1,19 @@
 <?php
-/*
- * Created on Apr 24, 2008
+/**
+ * @author ttcremers@gmail.com
+ * @copyright Lunatech Research B.V.
+ * @package phpREST
+ */
+
+/**
+ * This is the entry point of you phpREST application.
+ * 
+ * Proxy with mod rewrite all request to this script and phpREST
+ * will attempt to extract resource and id from your uri.
+ * 
+ * A good place to start with your phpREST application is the 
+ * phpREST-Skeletion project. This PDT Eclipse project can be used
+ * as a bases and contains everything you need to get started.
  * 
  * If you want to add functionality you probably want to extend 
  * the CoreService object.

@@ -1,10 +1,15 @@
 <?php
 /**
- * Created on Apr 24, 2008
+ * @author ttcremers@gmail.com
+ * @copyright Lunatech Research B.V.
+ * @package phpREST
+ */
+
+/**
+ * Object representing the response.
  * 
- * @description Object representing the response.
- * 
- * TODO This class should implement an interface.
+ * @todo This class should implement an interface.
+ * @package phpREST
  */
 class Response {
 	public $mimeType;

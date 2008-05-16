@@ -1,11 +1,15 @@
 <?php
-/*
- * Created on Apr 24, 2008
- * 
- * CoreService routes request methods 
- * and calls the appropriate method on the content adapter.
+/**
+ * @author ttcremers@gmail.com
+ * @copyright Lunatech Research B.V.
+ * @package phpREST
  */
 require_once 'ServiceInterface.php';
+/**
+ * CoreService routes request methods 
+ * and calls the appropriate method on the content adapter.
+ * @package phpREST
+ */
 class CoreService implements ServiceInterface {
 	
 	private $_contentAdapter=null;
@@ -14,11 +18,13 @@ class CoreService implements ServiceInterface {
 	private $_resource=null;
 	private $_serviceConfig=null;
 	
-	/*
+	/**
 	 * The service Method is called from the RESTProxy
 	 * to service the current request.
 	 * Based on the type of request it will call the appropriate 
 	 * http type service method.
+	 * 
+	 * @todo add typing to this method
 	 */
 	public function service($request, $response, $contentAdapter, $serviceConfig) {
 		$this->_contentAdapter = $contentAdapter;
