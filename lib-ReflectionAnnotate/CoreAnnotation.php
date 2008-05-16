@@ -1,5 +1,15 @@
 <?php
+/**
+ * @author ttcremers@gmail.com
+ * @copyright Lunatech Research B.V. 2008
+ * @package ReflectionAnnotate
+ */
 require_once 'ReflectionAnnotateException.php';
+
+/**
+ * Base class for annotation types (method/property/class)
+ * @package ReflectionAnnotate
+ */
 class ReflectionAnnotate_CoreAnnotation {
 	
 	const TAG_PREFIX='@';
@@ -14,14 +24,26 @@ class ReflectionAnnotate_CoreAnnotation {
 		$this->object = $object;
 	}
 	
-	// Extract the annotation key out of the comment
+	/**
+	 * Extract the annotation key out of the comment
+	 * 
+	 * @param string $key Name of the annotation
+	 * @param string $comment Comment block which contains the annotation 
+	 * @return boolean
+	 */ 
 	protected function matchAnnotationKey($key, $comment) {
 		$regex = "/".constant('ReflectionAnnotate_CoreAnnotation::TAG_PREFIX').$key."(\s|:|$)/";
     	return preg_match($regex, $comment);
 	}
 	
-	// Get the annotation value for $key
-	// TODO built support for multiple key value pairs
+	/**
+	 * Get the annotations value
+	 *
+	 * @todo Built support for multiple key value pairs 
+	 * @param string $key Name of the annotation
+	 * @param string $comment Comment block which contains the annotation
+	 * @return string Value of the annotation
+	 */
 	protected function extractValueForAnnotation($key, $comment) {
 		$matches = array();
 		$regex = "/".constant('ReflectionAnnotate_CoreAnnotation::TAG_PREFIX').$key.":\s*(\w*)(\r\n|\r|\n)/U";
