@@ -11,7 +11,7 @@ require_once 'Annotation.php';
  * Class representing class annotations.
  * 
  * @see ReflectionAnnotate_CoreAnnotation
- * @package ClassAnnotation
+ * @package ReflectionAnnotate
  */
 class ReflectionAnnotate_ClassAnnotation extends ReflectionAnnotate_CoreAnnotation 
 									     implements ReflectionAnnotate_Annotation {
