@@ -1,17 +1,27 @@
-<?
+<?php
 /**
  * @author ttcremers@gmail.com
- * @date 28-04-2008
+ * @copyright Lunatech Research B.V. 2008
  */
 require_once 'ClassAnnotation.php';
 require_once 'PropertyAnnotation.php';
 require_once 'XMLShiftException.php';
-
+/**
+ * Provides functionality for marschalling and unmarshalling xml. Any object 
+ * can be used as marshall/unmarshall object provided it's public class properties
+ * are anotated. For unmarshalling is also expects a setter method for the property.
+ * @todo Access properties by there getter method
+ * @todo Add an method to resolve one2one relationships (already has a test)
+ * 
+ * @example test/XMLShiftTest.php Multiple examples of how to use XMLShift 
+ *
+ */
 class CoreXMLShift {
 	private $_idResolver;
 	
 	/**
-	 * Get xml rep for object
+	 * @param object $object XMLShift annotated object.
+	 * @return String XML representation of the passed object. 
 	 */
 	function marshall($object) {
 		try {
@@ -84,7 +94,7 @@ class CoreXMLShift {
 
 	/**
 	 * @param mixed $xmlData can be a string with xml data or a DOM object 
-	 * @param object $object reference object that is used to unmarshall the xml. If it's not given an atemped will be made to autoload one.
+	 * @param object $object reference object that is used to unmarshall the xml. If it's not given an attempted will be made to autoload one.
 	 * @return Object represantation of the passed xml.
 	 */
 	function unMarshall($xmlData, $object=null) {
@@ -136,6 +146,16 @@ class CoreXMLShift {
 		return $object;
 	}
 	
+	/**
+	 * Looks up and creates a list of objects based on the information in the xml. 
+	 * The IDResolver is used to lookup the objects with the id's found in the xml.
+	 * @see IDResolverInterface
+	 *
+	 * @param DOMElement $node
+	 * @param ReflectionAnnotate_PropertyAnnotation $propertyAnnotation
+	 * @param string $objectProperty Name of the property where we set the array list of objects 
+	 * @param object $object to object on which we call the setter with array list
+	 */
 	protected function lookupXmlRefList(DOMElement $node, 
 						ReflectionAnnotate_PropertyAnnotation $propertyAnnotation,
 						$objectProperty, $object) {
@@ -156,6 +176,14 @@ class CoreXMLShift {
 		$object->$method($objectList);
 	}
 	
+	/**
+	 * Used to unmarshall an XMLShift object as child of an node
+	 *
+	 * @param DOMElement $node Node under which to marshall
+	 * @param ReflectionAnnotate_PropertyAnnotation $propertyAnnotation
+	 * @param string $objectProperty
+	 * @param object $object
+	 */
 	protected function processXmlRef(DOMElement $node, 
 						ReflectionAnnotate_PropertyAnnotation $propertyAnnotation,
 						$objectProperty, $object) {
@@ -173,17 +201,36 @@ class CoreXMLShift {
 		$object->$method($xmlRefObject);
 	}
 	
+	/**
+	 * Utilty method to set a given value on an XMLShift object
+	 *
+	 * @param DOMNode $node The node from which the value is extracted
+	 * @param object $object the obect on which the setter is called
+	 * @param string $property Name of property to set
+	 */
 	protected function setObjectValue($node, $object, $property) {
 		$value = $node->nodeValue;
 		$method = "set".ucFirst($property);
 		$object->$method($value);
 	}
 
+	/**
+	 * Utilty method that attempts to find an object by xml root element name
+	 *
+	 * @param DOMDocument $xml
+	 * @return object
+	 */
 	protected function findObject(DOMDocument $xml) {
 		$rootNodeName = $xml->documentElement->tagName;
 		return $this->loadClass($rootNodeName);
 	}
 	
+	/**
+	 * Utility method to load an close
+	 *
+	 * @param string $className
+	 * @return object
+	 */
 	protected function loadClass($className) {
 		if (!class_exists($className)) {
 			require_once $className.'.php';
@@ -191,6 +238,13 @@ class CoreXMLShift {
 		return new $className();
 	}
 	
+	/**
+	 * This method sets the IDResolver.
+	 * When you're planning to us XmlID's and the relations 
+	 * you create with them and IDResolver in mendatory!
+	 *
+	 * @param IDResolverInterface $idResolver
+	 */
 	public function setIDResolver(IDResolverInterface $idResolver) {
 		$this->_idResolver=$idResolver;
 	}
