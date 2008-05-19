@@ -16,10 +16,10 @@ require_once 'ResourceInterface.php';
  * @package phpREST
  */
 abstract class CoreResource implements ResourceInterface {
-	abstract protected function create($object, $response);
-	abstract protected function update($object, $response);
-	abstract protected function select($response);
-	abstract protected function delete($response);
+	abstract protected function create($object, Response $response);
+	abstract protected function update($object, Response $response);
+	abstract protected function select(Response $response);
+	abstract protected function delete(Response $response);
 	
 	protected $serviceConfig;
 	protected $request;
