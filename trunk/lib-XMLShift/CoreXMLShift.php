@@ -73,7 +73,7 @@ class CoreXMLShift {
 						 		$parentNode->appendChild($itemNode);
 						 	}
 						 	$rootNode->appendChild($parentNode);
-						 } else {
+						 } elseif (!is_null($value)){
 						 	throw new XMLShiftException(
 						 		"The XmlRefList annotation should annotate properties of type array"
 						 	);
