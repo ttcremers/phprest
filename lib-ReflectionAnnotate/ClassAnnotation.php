@@ -22,7 +22,7 @@ class ReflectionAnnotate_ClassAnnotation extends ReflectionAnnotate_CoreAnnotati
 	 *
 	 * @param String $annotationName The name of the annotation
 	 */
-	public function isAnnotationPressent($annotationName, $className='') {
+	public function isAnnotationPresent($annotationName, $className='') {
 		$method = new ReflectionClass($this->className);
 		return $this->matchAnnotationKey($annotationName, $method->getDocComment());
 	}

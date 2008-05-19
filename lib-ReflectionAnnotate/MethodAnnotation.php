@@ -15,7 +15,7 @@ class ReflectionAnnotate_MethodAnnotation extends CoreAnnotation implements Refl
 	 *
 	 * @param String $annotationName The name of the annotation
 	 */
-	function isAnnotationPressent($methodName, $annotationName) {
+	function isAnnotationPresent($methodName, $annotationName) {
 		$method = new ReflectionMethod($this->_className, $methodName);
 		return $this->matchAnnotationKey($annotationName, $method->getDocComment());
 	}
