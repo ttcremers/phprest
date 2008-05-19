@@ -19,7 +19,7 @@ class ReflectionAnnotate_PropertyAnnotation extends ReflectionAnnotate_CoreAnnot
 	 *
 	 * @param String $annotationName The name of the annotation
 	 */										
-	function isAnnotationPressent($annotationName, $propertyName='') {
+	function isAnnotationPresent($annotationName, $propertyName='') {
 		$property = new ReflectionProperty($this->className, $propertyName);
 		return $this->matchAnnotationKey($annotationName, $property->getDocComment());
 	}

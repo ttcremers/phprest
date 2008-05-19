@@ -19,7 +19,7 @@ interface ReflectionAnnotate_Annotation {
 	 * @param String $elementName
 	 * @param String $annotationName
 	 */
-	function isAnnotationPressent($annotationName, $elementName='');
+	function isAnnotationPresent($annotationName, $elementName='');
 	
 	/**
 	 * Get all annotations for specified class element.

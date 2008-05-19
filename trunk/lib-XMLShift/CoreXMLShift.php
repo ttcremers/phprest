@@ -30,7 +30,7 @@ class CoreXMLShift {
 			$classAnno = new ReflectionAnnotate_ClassAnnotation($object);
 
 			$xml = null;
-			if ($classAnno->isAnnotationPressent("XmlRootElement")) {
+			if ($classAnno->isAnnotationPresent("XmlRootElement")) {
 				$rootNodeName = $classAnno->getAnnotationValue('XmlRootElement');
 				$xml = new DOMDocument('1.0', 'UTF-8');
 				$rootNode = $xml->appendChild($xml->createElement($rootNodeName));
@@ -38,27 +38,27 @@ class CoreXMLShift {
 				foreach (get_object_vars($object) as $key => $value) {
 						
 					// The XmlElement marker annotation superceeds all others
-					if ($propertyAnno->isAnnotationPressent('XmlElement', $key)) {
+					if ($propertyAnno->isAnnotationPresent('XmlElement', $key)) {
 						$element = $xml->createElement($key, $value);
 						$rootNode->appendChild($element);
 							
 						// Add an attribute direct to the main node
-					} else if ($propertyAnno->isAnnotationPressent('XmlAttribute', $key) &&
-								!$propertyAnno->isAnnotationPressent('XmlContainerElement', $key)) {
+					} else if ($propertyAnno->isAnnotationPresent('XmlAttribute', $key) &&
+								!$propertyAnno->isAnnotationPresent('XmlContainerElement', $key)) {
 						$rootNode->setAttribute($key, $value);
 							
 						// Create container with attribute. XmlContainerElement is not a Marker
 						// Annotation.
-					} else if ($propertyAnno->isAnnotationPressent('XmlAttribute', $key) &&
-								$propertyAnno->isAnnotationPressent('XmlContainerElement', $key)) {
+					} else if ($propertyAnno->isAnnotationPresent('XmlAttribute', $key) &&
+								$propertyAnno->isAnnotationPresent('XmlContainerElement', $key)) {
 						$containerName = $propertyAnno->getAnnotationValue('XmlContainerElement', $key);
 						$element = $xml->createElement($containerName);
 						$element->setAttribute($key, $value);
 						$rootNode->appendChild($element);
-					} else if ($propertyAnno->isAnnotationPressent('XmlRef', $key) &&
-								!$propertyAnno->isAnnotationPressent('XmlContainerElement', $key)) {
+					} else if ($propertyAnno->isAnnotationPresent('XmlRef', $key) &&
+								!$propertyAnno->isAnnotationPresent('XmlContainerElement', $key)) {
 						// TODO marshall XMLRef 
-					} else if ($propertyAnno->isAnnotationPressent('XmlRefList', $key)) {
+					} else if ($propertyAnno->isAnnotationPresent('XmlRefList', $key)) {
 						 if (is_array($value)) {
 						 	// TODO loop over object array and create a new DOMNode
 						 	$parentNode = $xml->createElement($key);
@@ -122,25 +122,25 @@ class CoreXMLShift {
 		$propertyAnno = new ReflectionAnnotate_PropertyAnnotation($object);
 		$elements = Array();
 		foreach (get_object_vars($object) as $objectProperty => $value) {
-			if ($propertyAnno->isAnnotationPressent('XmlElement', $objectProperty) &&
-					!$propertyAnno->isAnnotationPressent('XmlContainerElement', $objectProperty)) {
+			if ($propertyAnno->isAnnotationPresent('XmlElement', $objectProperty) &&
+					!$propertyAnno->isAnnotationPresent('XmlContainerElement', $objectProperty)) {
 				$node = $xml->getElementsByTagName($objectProperty)->item(0);
 				$this->setObjectValue($node, $object, $objectProperty);
 			
 			} else {
-				if ($propertyAnno->isAnnotationPressent('XmlContainerElement', $objectProperty)) {
+				if ($propertyAnno->isAnnotationPresent('XmlContainerElement', $objectProperty)) {
 					$containerElementName = $propertyAnno->getAnnotationValue('XmlContainerElement', $objectProperty);
 					$container = $xml->getElementsByTagName($containerElementName)->item(0);
-					if ($propertyAnno->isAnnotationPressent('XmlAttribute', $objectProperty)) {
+					if ($propertyAnno->isAnnotationPresent('XmlAttribute', $objectProperty)) {
 						$attrNode = $container->getAttributeNode($objectProperty);
 						$this->setObjectValue($attrNode, $object, $objectProperty);
 					} else {
 						$subElement = $container->getElementsByTagName($objectProperty)->item('0');
 						$this->setObjectValue($subElement, $object, $objectProperty);	
 					}
-				} elseif ($propertyAnno->isAnnotationPressent('XmlRef', $objectProperty)) {
+				} elseif ($propertyAnno->isAnnotationPresent('XmlRef', $objectProperty)) {
 					$this->processXmlRef($xml->documentElement, $propertyAnno, $objectProperty, $object);
-				} elseif ($propertyAnno->isAnnotationPressent('XmlRefList', $objectProperty)) {
+				} elseif ($propertyAnno->isAnnotationPresent('XmlRefList', $objectProperty)) {
 					$this->lookupXmlRefList($xml->documentElement, $propertyAnno, $objectProperty, $object);
 				}
 			} 
