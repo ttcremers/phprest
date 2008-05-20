@@ -12,6 +12,7 @@ ini_set('include_path', "$sys_include_path:../:$lib_reflection_path:/usr/share/p
 
 require_once 'PHPUnit/Framework.php';
 require_once 'CoreXMLShift.php';
+require_once 'IDResolverInterface.php';
 
 /**
  * Unit tests
@@ -24,9 +25,13 @@ require_once 'CoreXMLShift.php';
  * To test: phpunit XMLShiftTest.php
  */
 class XMLShiftTest extends PHPUnit_Framework_TestCase {
-	protected $xmlDemoObject;
-	protected $xmlDemoRefObject;
+	
+	/**
+	 * @var CoreXMLShift
+	 */
 	protected $xmlShift;
+	protected $xmlDemoObject;
+	protected $xmlDemoRefObject;	
 	protected $xmlString;
 	
 	// Fixture Methods
@@ -43,6 +48,7 @@ class XMLShiftTest extends PHPUnit_Framework_TestCase {
 		$this->xmlDemoObject->setRefs(array($this->xmlDemoRefObject));
 		
 		$this->xmlShift = new CoreXMLShift();
+		$this->xmlShift->setIDResolver(new MockIdResolver());
 	}
 	
 	function teardown() {
@@ -62,7 +68,7 @@ class XMLShiftTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("Simpel xml object", $messageELM->nodeValue);
 	}
 	
-	public function test_bacic_unmarshall() {
+	public function test_basic_unmarshall() {
 		$object = $this->xmlShift->unmarshall('<?xml version="1.0" encoding="UTF-8"?>
 <demo><message>Simpel xml object</message></demo>', new XmlDemoRefObject());
 		$this->assertEquals("Simpel xml object", $object->message);
@@ -74,6 +80,36 @@ class XMLShiftTest extends PHPUnit_Framework_TestCase {
 		$object = $this->xmlShift->unmarshall($xml, new XmlDemoHasaObject());
 		if (!is_object($object->refObject))
 			$this->fail("was expecting an object but got: ".$object->refObject); 
+	}
+	
+	public function test_hasa_marshall() {
+		$parent = new XmlDemoHasaObject();
+		$child = new XmlDemoRefObject();
+		$child->setID("NCC-74656");
+		$parent->setRefObject($child);
+		
+		$xml = $this->xmlShift->marshall($parent);
+		
+		$targetXML = '<?xml version="1.0" encoding="UTF-8"?>
+		<demohasa><refObject id="NCC-74656"/></demohasa>';
+
+		$this->assertXmlEqual($xml, $targetXML);
+		
+	}
+	
+	// Note that this is by no means perfect. Ordering matters, it shouldn't.
+	private function assertXmlEqual($xml, $expected){
+		$document = new DOMDocument();
+		$document->loadXML($xml);
+		$document->normalizeDocument();
+		
+		$expectedDocument = new DOMDocument();
+		$expectedDocument->loadXML($expected);
+		$expectedDocument->normalizeDocument();
+		
+		if($document->saveXML() != $expectedDocument->saveXML()){
+			$this->fail("XML fragments do not match");
+		}
 	}
 	
 	public function test_relational_marshall() {
@@ -161,6 +197,14 @@ class XmlDemoHasaObject {
 	
 	public function setRefObject($object) {
 		$this->refObject=$object;
+	}
+}
+
+class MockIdResolver implements IDResolverInterface{
+	public function resolve($id,$className){
+		$instance = new $className();
+		$instance->setId($id);
+		return $instance;
 	}
 }
 ?>
