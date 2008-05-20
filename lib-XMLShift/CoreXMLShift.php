@@ -19,6 +19,10 @@ require_once 'XMLShiftException.php';
  * @package XMLShift
  */
 class CoreXMLShift {
+	
+	/**
+	 * @var IDResolverInterface
+	 */
 	private $_idResolver;
 	
 	/**
@@ -58,6 +62,10 @@ class CoreXMLShift {
 					} else if ($propertyAnno->isAnnotationPresent('XmlRef', $key) &&
 								!$propertyAnno->isAnnotationPresent('XmlContainerElement', $key)) {
 						// TODO marshall XMLRef 
+					} else if ($propertyAnno->isAnnotationPresent('XmlRefID', $key) && !is_null($value)) {
+						$element = $xml->createElement($key);						
+						$element->setAttribute('id',$this->findId($value));
+						$rootNode->appendChild($element);
 					} else if ($propertyAnno->isAnnotationPresent('XmlRefList', $key)) {
 						 if (is_array($value)) {
 						 	// TODO loop over object array and create a new DOMNode
@@ -66,10 +74,8 @@ class CoreXMLShift {
 						 	foreach ($value as $item) {
 						 		$itemNode = $xml->createElement($itemName);
 						 		// Now find out which method is annotated with @XmlID
-						 		$REFPropertyAnno = new ReflectionAnnotate_PropertyAnnotation($item);
-						 		$propertyName = $REFPropertyAnno->getPropertyWithAnnotation("XmlID");
 						 		// Set the value to the id attribute
-						 		$itemNode->setAttribute("id", $item->$propertyName);
+						 		$itemNode->setAttribute("id", $this->findId($item));
 						 		$parentNode->appendChild($itemNode);
 						 	}
 						 	$rootNode->appendChild($parentNode);
@@ -142,10 +148,35 @@ class CoreXMLShift {
 					$this->processXmlRef($xml->documentElement, $propertyAnno, $objectProperty, $object);
 				} elseif ($propertyAnno->isAnnotationPresent('XmlRefList', $objectProperty)) {
 					$this->lookupXmlRefList($xml->documentElement, $propertyAnno, $objectProperty, $object);
+				} elseif ($propertyAnno->isAnnotationPresent('XmlRefID', $objectProperty)) {
+					$this->lookupXmlRefId($xml->documentElement, $propertyAnno, $objectProperty, $object);
 				}
 			} 
 		}
 		return $object;
+	}
+	
+	/**
+	 * Looks up an object based on the information in the xml. 
+	 * The IDResolver is used to lookup the object with the id's found in the xml.
+	 * @see IDResolverInterface
+	 *
+	 * @param DOMElement $node
+	 * @param ReflectionAnnotate_PropertyAnnotation $propertyAnnotation
+	 * @param string $objectProperty Name of the property where we set the object
+	 * @param object $object to object on which we call the setter with the object
+	 */
+	protected function lookupXmlRefId(DOMElement $node, 
+						ReflectionAnnotate_PropertyAnnotation $propertyAnnotation,
+						$objectProperty, $object) {
+		
+		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefID', $objectProperty);
+		$xmlId = $node->getAttribute('id');
+		$resolvedObject = $this->_idResolver->resolve($xmlID, $xmlRefClass);
+		
+		$method = "set".ucFirst($objectProperty);
+		$object->$method($resolvedObject);		
+		
 	}
 	
 	/**
@@ -249,6 +280,12 @@ class CoreXMLShift {
 	 */
 	public function setIDResolver(IDResolverInterface $idResolver) {
 		$this->_idResolver=$idResolver;
+	}
+	
+	private function findId($item){
+		$REFPropertyAnno = new ReflectionAnnotate_PropertyAnnotation($item);
+ 		$propertyName = $REFPropertyAnno->getPropertyWithAnnotation("XmlID");
+ 		return $item->$propertyName; 		
 	}
 }
 
