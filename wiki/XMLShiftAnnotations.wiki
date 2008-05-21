@@ -1,7 +1,8 @@
 #summary What annotations are available and what do they do?
 
-=Class Ann0tations=
+=Class Annotations=
 ||`@XmlRoot`||Specify what the root element of the XML representation for this class will be.||
+
 
 =Property Annotations=
 ||`@XmlElement`||This property will be represented as an XML element, with it's string representation as TextNode. The element name will be the property name.||
