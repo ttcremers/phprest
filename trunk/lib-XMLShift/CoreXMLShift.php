@@ -14,6 +14,7 @@ require_once 'XMLShiftException.php';
  * are anotated. For unmarshalling it also expects a setter method for the property.
  * @todo Access properties by there getter method
  * @todo Add an method to resolve one2one relationships (already has a test)
+ * @todo spaghetti code in dire need of refactor
  * 
  * @example test/XMLShiftTest.php Multiple examples of how to use XMLShift 
  * @package XMLShift
@@ -40,12 +41,17 @@ class CoreXMLShift {
 				$rootNode = $xml->appendChild($xml->createElement($rootNodeName));
 				$propertyAnno = new ReflectionAnnotate_PropertyAnnotation($object);
 				foreach (get_object_vars($object) as $key => $value) {
+
+					// We need to call getter, variables may be there just for annotation
+					$value = $this->callGetter($object,$key);
 						
 					// The XmlElement marker annotation superceeds all others
 					if ($propertyAnno->isAnnotationPresent('XmlElement', $key)) {
-						$element = $xml->createElement($key, $value);
+						$element = $xml->createElement($key);
+						if(!is_object($value)){
+							$element->nodeValue = $value;
+						} 
 						$rootNode->appendChild($element);
-							
 						// Add an attribute direct to the main node
 					} else if ($propertyAnno->isAnnotationPresent('XmlAttribute', $key) &&
 								!$propertyAnno->isAnnotationPresent('XmlContainerElement', $key)) {
@@ -61,29 +67,17 @@ class CoreXMLShift {
 						$rootNode->appendChild($element);
 					} else if ($propertyAnno->isAnnotationPresent('XmlRef', $key) &&
 								!$propertyAnno->isAnnotationPresent('XmlContainerElement', $key)) {
-						// TODO marshall XMLRef 
-					} else if ($propertyAnno->isAnnotationPresent('XmlRefID', $key) && !is_null($value)) {
-						$element = $xml->createElement($key);						
-						$element->setAttribute('id',$this->findId($value));
-						$rootNode->appendChild($element);
-					} else if ($propertyAnno->isAnnotationPresent('XmlRefList', $key)) {
-						 if (is_array($value)) {
-						 	// TODO loop over object array and create a new DOMNode
-						 	$parentNode = $xml->createElement($key);
-						 	$itemName = $propertyAnno->getAnnotationValue('XmlRefList', $key);
-						 	foreach ($value as $item) {
-						 		$itemNode = $xml->createElement($itemName);
-						 		// Now find out which method is annotated with @XmlID
-						 		// Set the value to the id attribute
-						 		$itemNode->setAttribute("id", $this->findId($item));
-						 		$parentNode->appendChild($itemNode);
-						 	}
-						 	$rootNode->appendChild($parentNode);
-						 } elseif (!is_null($value)){
-						 	throw new XMLShiftException(
-						 		"The XmlRefList annotation should annotate properties of type array"
-						 	);
-						 }
+						// TODO marshall XMLRef 						
+					} else if ($propertyAnno->isAnnotationPresent('XmlRefLink', $key)) {
+						$parentNode = $xml->createElement($key);
+						if (is_array($value)) {
+							foreach ($value as $item) {
+								$parentNode->appendChild($this->createRefLinkElement($xml, $item));
+							}
+						} elseif (!is_null($value)){
+							$parentNode->appendChild($this->createRefLinkElement($xml, $value));
+						}
+						$rootNode->appendChild($parentNode);
 					}
 				}
 			} else {
@@ -146,9 +140,9 @@ class CoreXMLShift {
 					}
 				} elseif ($propertyAnno->isAnnotationPresent('XmlRef', $objectProperty)) {
 					$this->processXmlRef($xml->documentElement, $propertyAnno, $objectProperty, $object);
-				} elseif ($propertyAnno->isAnnotationPresent('XmlRefList', $objectProperty)) {
+				} elseif ($propertyAnno->isAnnotationPresent('XmlRefLinkMany', $objectProperty)) {
 					$this->lookupXmlRefList($xml->documentElement, $propertyAnno, $objectProperty, $object);
-				} elseif ($propertyAnno->isAnnotationPresent('XmlRefID', $objectProperty)) {
+				} elseif ($propertyAnno->isAnnotationPresent('XmlRefLink', $objectProperty)) {
 					$this->lookupXmlRefId($xml->documentElement, $propertyAnno, $objectProperty, $object);
 				}
 			} 
@@ -170,7 +164,7 @@ class CoreXMLShift {
 						ReflectionAnnotate_PropertyAnnotation $propertyAnnotation,
 						$objectProperty, $object) {
 		
-		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefID', $objectProperty);
+		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefLink', $objectProperty);
 		$xmlId = $node->getAttribute('id');
 		$resolvedObject = $this->_idResolver->resolve($xmlID, $xmlRefClass);
 		
@@ -192,7 +186,7 @@ class CoreXMLShift {
 	protected function lookupXmlRefList(DOMElement $node, 
 						ReflectionAnnotate_PropertyAnnotation $propertyAnnotation,
 						$objectProperty, $object) {
-		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefList', $objectProperty);
+		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefLinkMany', $objectProperty);
 		$refNode = $node->getElementsByTagName($objectProperty)->item(0);
 		$refChilderen = $refNode->childNodes;
 		// NODEList class is not really a list so we need a for loop
@@ -282,11 +276,34 @@ class CoreXMLShift {
 		$this->_idResolver=$idResolver;
 	}
 	
+	/**
+	 * Return the property on $item that has the @XmlID annotation
+	 *
+	 * @param object $item
+	 * @return the XmlID of the item, or null if none.
+	 */
 	private function findId($item){
 		$REFPropertyAnno = new ReflectionAnnotate_PropertyAnnotation($item);
  		$propertyName = $REFPropertyAnno->getPropertyWithAnnotation("XmlID");
- 		return $item->$propertyName; 		
+ 		return $this->callGetter($item,$propertyName); 		
 	}
+	
+	private function callGetter($object, $propertyName){
+		$methodName = "get".ucfirst($propertyName);
+		if(method_exists($object, $methodName)){
+			$value = $object->$methodName();
+		}else{
+			$value = $object->$propertyName;
+		}
+		return $value;
+	}
+	
+	private function createRefLinkElement(DOMDocument $xml, $item){		
+		$itemNode = $xml->createElement(strtolower(get_class($item)));
+ 		$itemNode->setAttribute("id", $this->findId($item));
+ 		return $itemNode;
+	}
+	
 }
 
 ?>

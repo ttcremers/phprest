@@ -91,7 +91,7 @@ class XMLShiftTest extends PHPUnit_Framework_TestCase {
 		$xml = $this->xmlShift->marshall($parent);
 		
 		$targetXML = '<?xml version="1.0" encoding="UTF-8"?>
-		<demohasa><refObject id="NCC-74656"/></demohasa>';
+		<demohasa><refObject><XmlDemoRefObject id="NCC-74656"/></refObject></demohasa>';
 
 		$this->assertXmlEqual($xml, $targetXML);
 		
@@ -107,8 +107,10 @@ class XMLShiftTest extends PHPUnit_Framework_TestCase {
 		$expectedDocument->loadXML($expected);
 		$expectedDocument->normalizeDocument();
 		
-		if($document->saveXML() != $expectedDocument->saveXML()){
-			$this->fail("XML fragments do not match");
+		$expectedXML = $expectedDocument->saveXML();
+		$actualXML = $document->saveXML();
+		if( $expectedXML != $actualXML){
+			$this->fail("XML fragments do not match\r\nExpected:$expectedXML\r\nGot:\r\n$actualXML");
 		}
 	}
 	
@@ -142,7 +144,7 @@ class XmlDemoObject {
 	public $age;
 	
 	/**
-	 * @XmlRefList:RefDemo
+	 * @XmlRefLinkMany:XmlDemoRefObject
 	 */
 	public $refs = array();
 	
@@ -191,7 +193,7 @@ class XmlDemoRefObject {
  */
 class XmlDemoHasaObject {
 	/**
- 	 * @XmlRefID: XmlDemoRefObject
+ 	 * @XmlRefLink:XmlDemoRefObject
  	 */
 	public $refObject;
 	
