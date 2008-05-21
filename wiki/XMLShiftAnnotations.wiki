@@ -1,0 +1,10 @@
+#summary What annotations are available and what do they do?
+
+=Class Ann0tations=
+||`@XmlRoot`||Specify what the root element of the XML representation for this class will be.||
+
+=Property Annotations=
+||`@XmlElement`||This property will be represented as an XML element, with it's string representation as TextNode. The element name will be the property name.||
+||`@XmlRef`||The referenced object's XML representation will be a child node in this object's XML representation.||
+||`@XmlRefLink`|| The referenced object will be represented by an element containing a link attribute to this object's resource, provided a `LinkResolver` is available.||
+||`@XmlAttribute`||This property's string representation will be presented as an attribute to the parent attribute. This will be the class' root node, unless `@XmlElement` is present as well.||
