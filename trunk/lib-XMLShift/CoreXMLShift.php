@@ -68,18 +68,23 @@ class CoreXMLShift {
 					} else if ($propertyAnno->isAnnotationPresent('XmlRef', $key) &&
 								!$propertyAnno->isAnnotationPresent('XmlContainerElement', $key)) {
 						// TODO marshall XMLRef 						
-					} else if ($propertyAnno->isAnnotationPresent('XmlRefLink', $key)) {
+					} else if ($propertyAnno->isAnnotationPresent('XmlRefLink', $key) && !is_null($value)){
+						$parentNode = $xml->createElement($key);
+						$parentNode->appendChild($this->createRefLinkElement($xml, $value));
+						$rootNode->appendChild($parentNode);						
+					} else if($propertyAnno->isAnnotationPresent('XmlRefLinkMany', $key) && !is_null($value)) {
 						$parentNode = $xml->createElement($key);
 						if (is_array($value)) {
 							foreach ($value as $item) {
 								$parentNode->appendChild($this->createRefLinkElement($xml, $item));
 							}
-						} elseif (!is_null($value)){
-							$parentNode->appendChild($this->createRefLinkElement($xml, $value));
+						} else {
+							throw new XMLShiftException("The XmlRefList annotation should annotate properties of type array");
 						}
 						$rootNode->appendChild($parentNode);
 					}
 				}
+				
 			} else {
 				throw new XMLShiftException(
 					"Object passed to marshaller isn't an XMLShift annotated class"
@@ -165,8 +170,12 @@ class CoreXMLShift {
 						$objectProperty, $object) {
 		
 		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefLink', $objectProperty);
+		
+		$node = $node->getElementsByTagName($objectProperty)->item(0);
+		$node = $node->getElementsByTagName('*')->item(0);
 		$xmlId = $node->getAttribute('id');
-		$resolvedObject = $this->_idResolver->resolve($xmlID, $xmlRefClass);
+		
+		$resolvedObject = $this->_idResolver->resolve($xmlId, $xmlRefClass);
 		
 		$method = "set".ucFirst($objectProperty);
 		$object->$method($resolvedObject);		
@@ -187,6 +196,7 @@ class CoreXMLShift {
 						ReflectionAnnotate_PropertyAnnotation $propertyAnnotation,
 						$objectProperty, $object) {
 		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefLinkMany', $objectProperty);
+
 		$refNode = $node->getElementsByTagName($objectProperty)->item(0);
 		$refChilderen = $refNode->childNodes;
 		// NODEList class is not really a list so we need a for loop
@@ -298,8 +308,10 @@ class CoreXMLShift {
 		return $value;
 	}
 	
-	private function createRefLinkElement(DOMDocument $xml, $item){		
-		$itemNode = $xml->createElement(strtolower(get_class($item)));
+	private function createRefLinkElement(DOMDocument $xml, $item){	
+		$className = get_class($item);
+		$className[0] = strtolower($className[0]);
+		$itemNode = $xml->createElement($className);
  		$itemNode->setAttribute("id", $this->findId($item));
  		return $itemNode;
 	}
