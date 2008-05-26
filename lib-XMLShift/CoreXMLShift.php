@@ -202,7 +202,7 @@ class CoreXMLShift {
 		// NODEList class is not really a list so we need a for loop
 		$objectList=Array();
 		for ($i=0; $i<=$refChilderen->length; $i++) {
-			if ($refChilderen->item($i)->tagName==strtolower($xmlRefClass)) {
+			if ($refChilderen->item($i)->tagName==lcfirst($xmlRefClass)) {
 				$itemAttributes = $refChilderen->item($i)->attributes;
 				$xmlID = $itemAttributes->getNamedItem('id')->nodeValue;
 				// Call the id resolver with id and class to resolve to object.
@@ -309,13 +309,16 @@ class CoreXMLShift {
 	}
 	
 	private function createRefLinkElement(DOMDocument $xml, $item){	
-		$className = get_class($item);
-		$className[0] = strtolower($className[0]);
+		$className = lcfirst(get_class($item));
 		$itemNode = $xml->createElement($className);
  		$itemNode->setAttribute("id", $this->findId($item));
  		return $itemNode;
 	}
-	
+}
+
+function lcfirst($string){
+	$string[0] = strtolower($string[0]);
+	return $string;
 }
 
 ?>
