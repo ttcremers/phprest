@@ -12,7 +12,7 @@ ini_set('include_path', "$sys_include_path:../:$lib_reflection_path:/usr/share/p
 
 require_once 'PHPUnit/Framework.php';
 require_once 'CoreXMLShift.php';
-require_once 'IDResolverInterface.php';
+require_once 'IDResolver.php';
 
 /**
  * Unit tests
@@ -202,7 +202,7 @@ class XmlDemoHasaObject {
 	}
 }
 
-class MockIdResolver implements IDResolverInterface{
+class MockIdResolver implements IDResolver{
 	public function resolve($id,$className){
 		$instance = new $className();
 		$instance->setId($id);

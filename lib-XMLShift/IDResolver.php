@@ -5,12 +5,11 @@
  * @package XMLShift
  */
 /**
- * IDResolverInterface when implementing your own id resolver it should implement this interface.
+ * IDResolver when implementing your own id resolver it should implement this interface.
  * @package XMLShift
  * @example phpREST-Skeleton/TestIDResolver.php
- * @todo rename to IDResolver
  */
-interface IDResolverInterface {
+interface IDResolver {
 	/**
 	 * Should return Object found with id
 	 * 
