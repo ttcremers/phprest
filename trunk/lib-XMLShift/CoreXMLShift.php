@@ -22,7 +22,7 @@ require_once 'XMLShiftException.php';
 class CoreXMLShift {
 	
 	/**
-	 * @var IDResolverInterface
+	 * @var IDResolver
 	 */
 	private $_idResolver;
 	
@@ -158,7 +158,7 @@ class CoreXMLShift {
 	/**
 	 * Looks up an object based on the information in the xml. 
 	 * The IDResolver is used to lookup the object with the id's found in the xml.
-	 * @see IDResolverInterface
+	 * @see IDResolver
 	 *
 	 * @param DOMElement $node
 	 * @param ReflectionAnnotate_PropertyAnnotation $propertyAnnotation
@@ -185,7 +185,7 @@ class CoreXMLShift {
 	/**
 	 * Looks up and creates a list of objects based on the information in the xml. 
 	 * The IDResolver is used to lookup the objects with the id's found in the xml.
-	 * @see IDResolverInterface
+	 * @see IDResolver
 	 *
 	 * @param DOMElement $node
 	 * @param ReflectionAnnotate_PropertyAnnotation $propertyAnnotation
@@ -280,9 +280,9 @@ class CoreXMLShift {
 	 * When you're planning to us XmlID's and the relations 
 	 * you create with them and IDResolver in mendatory!
 	 *
-	 * @param IDResolverInterface $idResolver
+	 * @param IDResolver $idResolver
 	 */
-	public function setIDResolver(IDResolverInterface $idResolver) {
+	public function setIDResolver(IDResolver $idResolver) {
 		$this->_idResolver=$idResolver;
 	}
 	
