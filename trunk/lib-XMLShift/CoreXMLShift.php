@@ -145,7 +145,10 @@ class CoreXMLShift {
 						$subElement = $container->getElementsByTagName($objectProperty)->item('0');
 						$this->setObjectValue($subElement, $object, $objectProperty);	
 					}
-				} elseif ($propertyAnno->isAnnotationPresent('XmlRef', $objectProperty)) {
+				}elseif ($propertyAnno->isAnnotationPresent('XmlAttribute', $objectProperty)) {
+					$attrNode = $xml->documentElement->getAttributeNode($objectProperty);
+					$this->setObjectValue($attrNode, $object, $objectProperty);
+				}elseif ($propertyAnno->isAnnotationPresent('XmlRef', $objectProperty)) {
 					$this->processXmlRef($xml->documentElement, $propertyAnno, $objectProperty, $object);
 				} elseif ($propertyAnno->isAnnotationPresent('XmlRefLinkMany', $objectProperty)) {
 					$this->lookupXmlRefList($xml->documentElement, $propertyAnno, $objectProperty, $object);
@@ -208,7 +211,7 @@ class CoreXMLShift {
 		$refChilderen = $refNode->childNodes;
 		// NODEList class is not really a list so we need a for loop
 		$objectList=Array();
-		for ($i=0; $i<=$refChilderen->length; $i++) {
+		for ($i=0; $i<= ($refChilderen->length)-1; $i++) {
 			if ($refChilderen->item($i)->tagName==lcfirst($xmlRefClass)) {
 				$itemAttributes = $refChilderen->item($i)->attributes;
 
