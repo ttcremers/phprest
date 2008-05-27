@@ -320,10 +320,11 @@ class CoreXMLShift {
 		return $value;
 	}
 	
-	private function createRefLinkElement(DOMDocument $xml, $item){	
+	private function createRefLinkElement(DOMDocument $xml, $item){
+		$xml->documentElement->setAttribute("xmlns:xlink",$this->XLINK_URI);		
 		$className = lcfirst(get_class($item));
 		$itemNode = $xml->createElement($className);
- 		$itemNode->setAttribute("id", $this->findId($item));
+ 		$itemNode->setAttribute("xlink:href", $this->_idResolver->constructURL($item));
  		return $itemNode;
 	}
 }
