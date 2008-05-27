@@ -26,6 +26,8 @@ class CoreXMLShift {
 	 */
 	private $_idResolver;
 	
+	private $XLINK_URI = "http://www.w3.org/1999/xlink";
+	
 	/**
 	 * @param object $object XMLShift annotated object.
 	 * @return String XML representation of the passed object. 
@@ -173,9 +175,14 @@ class CoreXMLShift {
 		
 		$node = $node->getElementsByTagName($objectProperty)->item(0);
 		$node = $node->getElementsByTagName('*')->item(0);
-		$xmlId = $node->getAttribute('id');
 		
-		$resolvedObject = $this->_idResolver->resolve($xmlId, $xmlRefClass);
+		$xmlHref = $node->getAttributeNS($this->XLINK_URI, "href");
+		if($xmlHref){
+			$resolvedObject = $this->_idResolver->resolve($xmlHref);
+		}else{
+			$xmlId = $node->getAttribute('id');		
+			$resolvedObject = $this->_idResolver->resolve($xmlId, $xmlRefClass);
+		}
 		
 		$method = "set".ucFirst($objectProperty);
 		$object->$method($resolvedObject);		
@@ -204,9 +211,14 @@ class CoreXMLShift {
 		for ($i=0; $i<=$refChilderen->length; $i++) {
 			if ($refChilderen->item($i)->tagName==lcfirst($xmlRefClass)) {
 				$itemAttributes = $refChilderen->item($i)->attributes;
-				$xmlID = $itemAttributes->getNamedItem('id')->nodeValue;
-				// Call the id resolver with id and class to resolve to object.
-				array_push($objectList, $this->_idResolver->resolve($xmlID, $xmlRefClass));
+
+				$hrefAttr = $refChilderen->item($i)->getAttributeNS($this->XLINK_URI,"href");
+				if($hrefAttr){
+					array_push($objectList, $this->_idResolver->resolveURL($hrefAttr));
+				}else{ //TODO What if there's no href AND no id?
+					$xmlID = $itemAttributes->getNamedItem('id')->nodeValue;
+					array_push($objectList, $this->_idResolver->resolve($xmlID, $xmlRefClass));					
+				}
 			}
 		}
 		$method = "set".ucFirst($objectProperty);
