@@ -16,7 +16,7 @@ class XMLAdapter implements AdapterInterface {
 	public function bodyRead(Request $request, RESTServiceConfig $serviceConfig) {
 		try {
 			$xmlShift = new CoreXMLShift();
-			$this->loadIdResolver($xmlShift, $serviceConfig);
+			$xmlShift->setIDResolver($this->loadIdResolver($serviceConfig));
 			return $xmlShift->unMarshall($request->body);
 		} catch (Exception $e) {
 			throw new RESTException($e->getMessage(), 500);
@@ -28,7 +28,7 @@ class XMLAdapter implements AdapterInterface {
 		try {
 			$classNamespace = $serviceConfig->adapterSection['xml-class-namespace'];
 			$xmlShift = new CoreXMLShift($classNamespace ? $classNamespace : null);
-			$this->loadIdResolver($xmlShift, $serviceConfig);
+			$xmlShift->setIDResolver($this->loadIdResolver($serviceConfig));
 			$response->body=$xmlShift->marshall($contentObjectRep);
 			return true;
 		} catch (XMLShiftException $e) {
@@ -37,14 +37,13 @@ class XMLAdapter implements AdapterInterface {
 		return false;
 	}
 
-	private function loadIdResolver(CoreXMLShift $xmlShift, RESTServiceConfig $serviceConfig){
+	private function loadIdResolver(RESTServiceConfig $serviceConfig){
 		// Load the IDResolver if any
 		$xmlIDResolverClass = $serviceConfig->adapterSection['xml-idresolver-class'];
 		if ($xmlIDResolverClass) {
-			$object = CoreUtil::loadCoreClass($xmlIDResolverClass);
-			if (is_object($object))
-			$xmlShift->setIDResolver($object);
+			$resolver = CoreUtil::loadCoreClass($xmlIDResolverClass);			
 		}
+		return $resolver;
 	}
 }
 ?>
