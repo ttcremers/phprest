@@ -21,8 +21,8 @@ class CoreUtil {
 	static function loadCoreClass($className) {
 		if (!class_exists($className)) {
 			require_once $className.'.php';
-			return new $className();
 		}
+		return new $className();
 	}
 
 	/**
