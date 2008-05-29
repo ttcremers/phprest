@@ -151,14 +151,18 @@ class CoreXMLShift {
 					$containerElementName = $propertyAnno->getAnnotationValue('XmlContainerElement', $objectProperty);
 					$container = $xml->getElementsByTagName($containerElementName)->item(0);
 					if ($propertyAnno->isAnnotationPresent('XmlAttribute', $objectProperty)) {
-						$attrNode = $container->getAttributeNode($objectProperty);
+						$attrName = $propertyAnno->getAnnotationValue('XmlAttribute', $objectProperty);
+						if(!$attrName) $attrName = $objectProperty;
+						$attrNode = $container->getAttributeNode($attrName);
 						$this->setObjectValue($attrNode, $object, $objectProperty);
 					} else {
 						$subElement = $container->getElementsByTagName($objectProperty)->item('0');
 						$this->setObjectValue($subElement, $object, $objectProperty);	
 					}
 				}elseif ($propertyAnno->isAnnotationPresent('XmlAttribute', $objectProperty)) {
-					$attrNode = $xml->documentElement->getAttributeNode($objectProperty);
+					$attrName = $propertyAnno->getAnnotationValue('XmlAttribute', $objectProperty);
+					if(!$attrName) $attrName = $objectProperty;
+					$attrNode = $xml->documentElement->getAttributeNode($attrName);
 					$this->setObjectValue($attrNode, $object, $objectProperty);
 				}elseif ($propertyAnno->isAnnotationPresent('XmlRef', $objectProperty)) {
 					$this->processXmlRef($xml->documentElement, $propertyAnno, $objectProperty, $object);
