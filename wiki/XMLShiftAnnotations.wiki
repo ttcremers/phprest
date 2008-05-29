@@ -5,6 +5,7 @@
 
 
 =Property Annotations=
+||`@XmlIncludeWhenEmpty`|| Includes the property in the output XML, even when it's unset. This will of course result in an empty element or attribute.||
 ||`@XmlContainerElement`|| Provides a "wrapping" element for the property. Use in combination with `@XmlAttribute`.||
 ||`@XmlElement`||This property will be represented as an XML element, with it's string representation as TextNode. The element name will be the property name.||
 ||`@XmlRef`||The referenced object's XML representation will be a child node in this object's XML representation.||
