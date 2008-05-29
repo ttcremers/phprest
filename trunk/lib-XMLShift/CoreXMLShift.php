@@ -59,7 +59,10 @@ class CoreXMLShift {
 						// Add an attribute direct to the main node
 					} else if ($propertyAnno->isAnnotationPresent('XmlAttribute', $key) &&
 								!$propertyAnno->isAnnotationPresent('XmlContainerElement', $key)) {
-						$rootNode->setAttribute($key, $value);
+									
+						$attrName = $propertyAnno->getAnnotationValue('XmlAttribute',$key);
+						if(!$attrName) $attrName = $key;
+						$rootNode->setAttribute($attrName, $value);
 							
 						// Create container with attribute. XmlContainerElement is not a Marker
 						// Annotation.
@@ -67,7 +70,11 @@ class CoreXMLShift {
 								$propertyAnno->isAnnotationPresent('XmlContainerElement', $key)) {
 						$containerName = $propertyAnno->getAnnotationValue('XmlContainerElement', $key);
 						$element = $xml->createElement($containerName);
-						$element->setAttribute($key, $value);
+						
+						$attrName = $propertyAnno->getAnnotationValue('XmlAttribute',$key);
+						//if(!$attrName) $attrName = $key;
+						
+						$element->setAttribute($attrName, $value);
 						$rootNode->appendChild($element);
 					} else if ($propertyAnno->isAnnotationPresent('XmlRef', $key) &&
 								!$propertyAnno->isAnnotationPresent('XmlContainerElement', $key)) {
@@ -94,6 +101,9 @@ class CoreXMLShift {
 					"Object passed to marshaller isn't an XMLShift annotated class"
 					);
 			}
+			
+			// FIXME ugly hack, find better way to do namespace declaration.
+			$xml->documentElement->setAttribute("xmlns:xlink",$this->XLINK_URI);
 			return $xml->saveXML();
 		} catch(Exception $e) {
 			throw new XMLShiftException(
