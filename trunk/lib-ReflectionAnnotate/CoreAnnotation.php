@@ -48,7 +48,6 @@ class ReflectionAnnotate_CoreAnnotation {
 		$matches = array();
 		$regex = "/".constant('ReflectionAnnotate_CoreAnnotation::TAG_PREFIX').$key.":\s*(\S*)(\r\n|\r|\n)/U";
 		preg_match($regex, $comment, $matches);
-		error_log("{$key}:{$matches[1]}");
 		if ($matches[1]) 
 			return trim($matches[1]);
 	}
