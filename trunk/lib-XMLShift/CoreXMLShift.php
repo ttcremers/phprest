@@ -46,7 +46,9 @@ class CoreXMLShift {
 
 					// We need to call getter, variables may be there just for annotation
 					$value = $this->callGetter($object,$key);
-						
+					
+					if(!$value && !$propertyAnno->isAnnotationPresent("XmlIncludeWhenEmpty",$key)) continue;
+
 					// The XmlElement marker annotation superceeds all others
 					if ($propertyAnno->isAnnotationPresent('XmlElement', $key)) {
 						$element = $xml->createElement($key);
