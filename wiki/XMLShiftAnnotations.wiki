@@ -2,6 +2,7 @@
 
 =Class Annotations=
 ||`@XmlRoot`||Specify what the root element of the XML representation for this class will be.||
+||`@XmlNamespace`||Specify the namespace this document will use.||
 
 
 =Property Annotations=
