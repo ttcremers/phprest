@@ -41,13 +41,17 @@ class CoreXMLShift {
 				$rootNodeName = $classAnno->getAnnotationValue('XmlRootElement');
 				$xml = new DOMDocument('1.0', 'UTF-8');
 				$rootNode = $xml->appendChild($xml->createElement($rootNodeName));
+
+				$namespace = $classAnno->getAnnotationValue("XmlNamespace");				
+				if(isset($namespace)) $xml->documentElement->setAttribute("xmlns",$namespace);
+
 				$propertyAnno = new ReflectionAnnotate_PropertyAnnotation($object);
 				foreach (get_object_vars($object) as $key => $value) {
 
 					// We need to call getter, variables may be there just for annotation
 					$value = $this->callGetter($object,$key);
 					
-					if(!$value && !$propertyAnno->isAnnotationPresent("XmlIncludeWhenEmpty",$key)) continue;
+					if(!isset($value) && !$propertyAnno->isAnnotationPresent("XmlIncludeWhenEmpty",$key)) continue;
 
 					// The XmlElement marker annotation superceeds all others
 					if ($propertyAnno->isAnnotationPresent('XmlElement', $key)) {
