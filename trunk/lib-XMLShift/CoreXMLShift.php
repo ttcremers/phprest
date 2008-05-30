@@ -72,7 +72,7 @@ class CoreXMLShift {
 						$element = $xml->createElement($containerName);
 						
 						$attrName = $propertyAnno->getAnnotationValue('XmlAttribute',$key);
-						//if(!$attrName) $attrName = $key;
+						if(!$attrName) $attrName = $key;
 						
 						$element->setAttribute($attrName, $value);
 						$rootNode->appendChild($element);
