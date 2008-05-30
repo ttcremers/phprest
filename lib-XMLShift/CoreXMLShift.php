@@ -59,6 +59,9 @@ class CoreXMLShift {
 						if(!is_object($value)){
 							$element->nodeValue = $value;
 						} 
+						if($propertyAnno->isAnnotationPresent('XmlID',$key)){
+							$element->nodeValue = $this->_idResolver->reverse($object);		
+						}
 						$rootNode->appendChild($element);
 						// Add an attribute direct to the main node
 					} else if ($propertyAnno->isAnnotationPresent('XmlAttribute', $key) &&
@@ -201,10 +204,7 @@ class CoreXMLShift {
 		
 		$xmlHref = $node->getAttributeNS($this->XLINK_URI, "href");
 		if($xmlHref){
-			$resolvedObject = $this->_idResolver->resolve($xmlHref);
-		}else{
-			$xmlId = $node->getAttribute('id');		
-			$resolvedObject = $this->_idResolver->resolve($xmlId, $xmlRefClass);
+			$resolvedObject = $this->_idResolver->resolveURL($xmlHref);
 		}
 		
 		$method = "set".ucFirst($objectProperty);
@@ -238,9 +238,6 @@ class CoreXMLShift {
 				$hrefAttr = $refChilderen->item($i)->getAttributeNS($this->XLINK_URI,"href");
 				if($hrefAttr){
 					array_push($objectList, $this->_idResolver->resolveURL($hrefAttr));
-				}else{ //TODO What if there's no href AND no id?
-					$xmlID = $itemAttributes->getNamedItem('id')->nodeValue;
-					array_push($objectList, $this->_idResolver->resolve($xmlID, $xmlRefClass));					
 				}
 			}
 		}

@@ -19,6 +19,8 @@ interface IDResolver {
 	 */ 
 	function resolve($id, $className);
 	
+	function reverse($id);
+	
 	/**
 	 * Should return Object found with id
 	 * 
