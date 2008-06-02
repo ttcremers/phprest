@@ -365,7 +365,7 @@ class CoreXMLShift {
 		if (count($errors)){
 			foreach ($errors as $error) {
 				$message = trim($error->message);
-				$errorMsg .= "\r\n* {$error->level}: {$message}";
+				$errorMsg .= "\r\n* {$message}";
 			}
 			throw new XMLShiftException("Validation against schema failed:{$errorMsg}", 400); 		
 		}
