@@ -22,10 +22,13 @@ abstract class CoreResource implements ResourceInterface {
 	abstract protected function select(Response $response);
 	abstract protected function delete(Response $response);
 	
+	/**
+	 * @var IDResolver
+	 */
+	protected $idResolver;
 	protected $serviceConfig;
 	protected $request;
 	protected $id;
-	protected $idResolver;
 	
 	public function setup(Request $request, RESTServiceConfig $serviceConfig) {
 		$this->request=$request;
