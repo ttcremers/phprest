@@ -28,6 +28,8 @@ class CoreXMLShift {
 	
 	private $XLINK_URI = "http://www.w3.org/1999/xlink";
 	
+	private $_schemalocation;
+		
 	/**
 	 * @param object $object XMLShift annotated object.
 	 * @return String XML representation of the passed object. 
@@ -114,8 +116,7 @@ class CoreXMLShift {
 			return $xml->saveXML();
 		} catch(Exception $e) {
 			throw new XMLShiftException(
-				"Error while marshalling xml: ". $e->getMessage()."\n\n".$e->getTraceAsString()
-			);
+				"Error while marshalling xml: {$e->getMessage()}\n\n{$e->getTraceAsString()}", $e->getCode());
 		}
 		return null;
 	}
@@ -135,6 +136,10 @@ class CoreXMLShift {
 				throw new XMLShiftException("Error parsing xml");
 			$xml->normalizeDocument();
 		}
+
+		if($this->_schemalocation)
+			$this->validate($xml,$this->_schemalocation);
+		
 		// If object is null we try to look it up.
 		if (!is_object($object)) {
 			$object = $this->findObject($xml);
@@ -157,14 +162,16 @@ class CoreXMLShift {
 				if ($propertyAnno->isAnnotationPresent('XmlContainerElement', $objectProperty)) {
 					$containerElementName = $propertyAnno->getAnnotationValue('XmlContainerElement', $objectProperty);
 					$container = $xml->getElementsByTagName($containerElementName)->item(0);
-					if ($propertyAnno->isAnnotationPresent('XmlAttribute', $objectProperty)) {
-						$attrName = $propertyAnno->getAnnotationValue('XmlAttribute', $objectProperty);
-						if(!$attrName) $attrName = $objectProperty;
-						$attrNode = $container->getAttributeNode($attrName);
-						$this->setObjectValue($attrNode, $object, $objectProperty);
-					} else {
-						$subElement = $container->getElementsByTagName($objectProperty)->item('0');
-						$this->setObjectValue($subElement, $object, $objectProperty);	
+					if($container){
+						if ($propertyAnno->isAnnotationPresent('XmlAttribute', $objectProperty)) {
+							$attrName = $propertyAnno->getAnnotationValue('XmlAttribute', $objectProperty);
+							if(!$attrName) $attrName = $objectProperty;
+							$attrNode = $container->getAttributeNode($attrName);
+							$this->setObjectValue($attrNode, $object, $objectProperty);
+						} else {
+							$subElement = $container->getElementsByTagName($objectProperty)->item('0');
+							$this->setObjectValue($subElement, $object, $objectProperty);	
+						}
 					}
 				}elseif ($propertyAnno->isAnnotationPresent('XmlAttribute', $objectProperty)) {
 					$attrName = $propertyAnno->getAnnotationValue('XmlAttribute', $objectProperty);
@@ -290,6 +297,7 @@ class CoreXMLShift {
 	 * @return object
 	 */
 	protected function findObject(DOMDocument $xml) {
+		//TODO this forces rootNodeName == classname. Makes this more flexible.
 		$rootNodeName = $xml->documentElement->tagName;
 		return $this->loadClass($rootNodeName);
 	}
@@ -346,6 +354,25 @@ class CoreXMLShift {
 		$itemNode = $xml->createElement($className);
  		$itemNode->setAttribute("xlink:href", $this->_idResolver->constructURL($item));
  		return $itemNode;
+	}
+	
+	public function validate(DOMDocument $xml, $schemaFile){
+		libxml_use_internal_errors(true);
+		libxml_clear_errors();
+		$xml->relaxNGValidate($schemaFile);
+		$errors = libxml_get_errors();
+		$errorMsg;
+		if (count($errors)){
+			foreach ($errors as $error) {
+				$message = trim($error->message);
+				$errorMsg .= "\r\n* {$error->level}: {$message}";
+			}
+			throw new XMLShiftException("Validation against schema failed:{$errorMsg}", 400); 		
+		}
+	}
+	
+	public function setSchemaLocation($filename){
+		$this->_schemalocation = $filename;
 	}
 }
 
