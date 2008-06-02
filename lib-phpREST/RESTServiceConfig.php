@@ -19,6 +19,7 @@ class RESTServiceConfig {
 	public $resourceDirectory;
 	public $resources = Array();
 	public $adapterSection = Array();
+	public $idResolver;
 	
 	function RESTServiceConfig($file=null) {
 		$ini_array = parse_ini_file($file?$file:"RESTService.ini", true);
@@ -33,6 +34,7 @@ class RESTServiceConfig {
 		
 		$this->idTemplate = $ini_array['resource']['id-template'];
 		$this->idPrefix = $ini_array['resource']['id-prefix'];
+		$this->idResolver = $ini_array['resource']['idresolver-class'];
 		$this->adapterSection = $ini_array['adapter'];
 	}
 	

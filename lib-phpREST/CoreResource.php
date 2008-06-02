@@ -6,6 +6,7 @@
  */
 
 require_once 'ResourceInterface.php';
+require_once 'CoreUtil.php';
 /**
  * It's the job of the Adapter to marshall and unmarshall content to 
  * object.
@@ -24,10 +25,15 @@ abstract class CoreResource implements ResourceInterface {
 	protected $serviceConfig;
 	protected $request;
 	protected $id;
+	protected $idResolver;
 	
 	public function setup(Request $request, RESTServiceConfig $serviceConfig) {
 		$this->request=$request;
 		$this->serviceConfig=$serviceConfig;
+		
+		$resolverClass = $serviceConfig->idResolver;
+		if($resolverClass) $this->idResolver = CoreUtil::loadCoreClass($resolverClass);
+		
 		// Parse the key patern from the config and do setup
 		if (preg_match('/'.$serviceConfig->idTemplate.'$/', $request->url[1], $matches)) {
 			// When a character grouping was used.
