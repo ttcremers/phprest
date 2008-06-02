@@ -17,9 +17,14 @@ class XMLAdapter implements AdapterInterface {
 		try {
 			$xmlShift = new CoreXMLShift();
 			$xmlShift->setIDResolver($this->loadIdResolver($serviceConfig));
+			
+			$schemaLocation = $serviceConfig->adapterSection['relax-schema-location'];
+			if($schemaLocation)
+				$xmlShift->setSchemaLocation($schemaLocation);
+			
 			return $xmlShift->unMarshall($request->body);
 		} catch (Exception $e) {
-			throw new RESTException($e->getMessage(), 500);
+			throw new RESTException($e->getMessage(), $e->getCode() ? $e->getCode() : 500 );
 		}
 		return null;
 	}
@@ -32,7 +37,7 @@ class XMLAdapter implements AdapterInterface {
 			$response->body=$xmlShift->marshall($contentObjectRep);
 			return true;
 		} catch (XMLShiftException $e) {
-			throw new RESTException($e->getMessage(), 500);
+			throw new RESTException($e->getMessage(), $e->getCode() ? $e->getCode() : 500 );
 		}
 		return false;
 	}
