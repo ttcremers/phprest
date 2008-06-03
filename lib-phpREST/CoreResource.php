@@ -26,7 +26,15 @@ abstract class CoreResource implements ResourceInterface {
 	 * @var IDResolver
 	 */
 	protected $idResolver;
+	
+	/**
+	 * @var RESTServiceConfig
+	 */
 	protected $serviceConfig;
+	
+	/**
+	 * @var Request
+	 */
 	protected $request;
 	protected $id;
 	
