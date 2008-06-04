@@ -35,90 +35,110 @@ class CoreXMLShift {
 	 * @return String XML representation of the passed object. 
 	 */
 	function marshall($object) {
-		try {
-			$classAnno = new ReflectionAnnotate_ClassAnnotation($object);
+		if(!is_object($object)) throw new UnexpectedValueException("Expected object, got ".gettype($object));
+		
+		$classAnno = new ReflectionAnnotate_ClassAnnotation($object);
+		
+		$xml = new DOMDocument('1.0', 'UTF-8');
+		$xml->appendChild($this->convertObjectToXml($object, $xml));
+		$xml->documentElement->setAttribute("xmlns:xlink",$this->XLINK_URI);
 
-			$xml = null;
-			if ($classAnno->isAnnotationPresent("XmlRootElement")) {
-				$rootNodeName = $classAnno->getAnnotationValue('XmlRootElement');
-				$xml = new DOMDocument('1.0', 'UTF-8');
-				$rootNode = $xml->appendChild($xml->createElement($rootNodeName));
+		if($classAnno->isAnnotationPresent("XmlNamespace")){
+			$namespace = $classAnno->getAnnotationValue("XmlNamespace");
+			$xml->documentElement->setAttribute("xmlns", $namespace);
+		}
+		
+		return $xml->saveXML();		
+	}
+	
+	function convertObjectToXml($object, DOMDocument $xml){
+		if(!is_object($object)) throw new UnexpectedValueException("Trying to convert a non-object to XML");
+		
+		$classAnno = new ReflectionAnnotate_ClassAnnotation($object);
+		$propertyAnno = new ReflectionAnnotate_PropertyAnnotation($object);		
+		
+		if($classAnno->isAnnotationPresent("XmlRootElement")){
+			$rootNodeName = $classAnno->getAnnotationValue("XmlRootElement");
+		}else{
+			$rootNodeName = lcfirst(get_class($object));
+		}
 
-				$namespace = $classAnno->getAnnotationValue("XmlNamespace");				
-				if(isset($namespace)) $xml->documentElement->setAttribute("xmlns",$namespace);
+		$rootNode = $xml->createElement($rootNodeName);
 
-				$propertyAnno = new ReflectionAnnotate_PropertyAnnotation($object);
-				foreach (get_object_vars($object) as $key => $value) {
-
-					// We need to call getter, variables may be there just for annotation
-					$value = $this->callGetter($object,$key);
-					
-					if(!isset($value) && !$propertyAnno->isAnnotationPresent("XmlIncludeWhenEmpty",$key)) continue;
-
-					// The XmlElement marker annotation superceeds all others
-					if ($propertyAnno->isAnnotationPresent('XmlElement', $key)) {
-						$element = $xml->createElement($key);
-						if(!is_object($value)){
-							$element->nodeValue = $value;
-						} 
-						if($propertyAnno->isAnnotationPresent('XmlID',$key)){
-							$element->nodeValue = $this->_idResolver->reverse($object);		
-						}
-						$rootNode->appendChild($element);
-						// Add an attribute direct to the main node
-					} else if ($propertyAnno->isAnnotationPresent('XmlAttribute', $key) &&
-								!$propertyAnno->isAnnotationPresent('XmlContainerElement', $key)) {
-									
-						$attrName = $propertyAnno->getAnnotationValue('XmlAttribute',$key);
-						if(!$attrName) $attrName = $key;
-						$rootNode->setAttribute($attrName, $value);
-							
-						// Create container with attribute. XmlContainerElement is not a Marker
-						// Annotation.
-					} else if ($propertyAnno->isAnnotationPresent('XmlAttribute', $key) &&
-								$propertyAnno->isAnnotationPresent('XmlContainerElement', $key)) {
-						$containerName = $propertyAnno->getAnnotationValue('XmlContainerElement', $key);
-						$element = $xml->createElement($containerName);
-						
-						$attrName = $propertyAnno->getAnnotationValue('XmlAttribute',$key);
-						if(!$attrName) $attrName = $key;
-						
-						$element->setAttribute($attrName, $value);
-						$rootNode->appendChild($element);
-					} else if ($propertyAnno->isAnnotationPresent('XmlRef', $key) &&
-								!$propertyAnno->isAnnotationPresent('XmlContainerElement', $key)) {
-						// TODO marshall XMLRef 						
-					} else if ($propertyAnno->isAnnotationPresent('XmlRefLink', $key) && !is_null($value)){
-						$parentNode = $xml->createElement($key);
-						$parentNode->appendChild($this->createRefLinkElement($xml, $value));
-						$rootNode->appendChild($parentNode);						
-					} else if($propertyAnno->isAnnotationPresent('XmlRefLinkMany', $key) && !is_null($value)) {
-						$parentNode = $xml->createElement($key);
-						if (is_array($value)) {
-							foreach ($value as $item) {
-								$parentNode->appendChild($this->createRefLinkElement($xml, $item));
-							}
-						} else {
-							throw new XMLShiftException("The XmlRefList annotation should annotate properties of type array");
-						}
-						$rootNode->appendChild($parentNode);
-					}
-				}
-				
-			} else {
-				throw new XMLShiftException(
-					"Object passed to marshaller isn't an XMLShift annotated class"
-					);
+		foreach (get_object_vars($object) as $key => $value) {
+			
+			// We need to call getter, variables may be there just for annotation
+			$value = $this->callGetter($object,$key);
+			if(!isset($value) && !$propertyAnno->isAnnotationPresent("XmlIncludeWhenEmpty",$key)) continue;
+			
+			if($propertyAnno->isAnnotationPresent("XmlContainerElement", $key)){
+				$parentNode = $xml->createElement($propertyAnno->getAnnotationValue("XmlContainerElement", $key));
+				$rootNode->appendChild($parentNode);
+			}else{
+				$parentNode = $rootNode;
 			}
 			
-			// FIXME ugly hack, find better way to do namespace declaration.
-			$xml->documentElement->setAttribute("xmlns:xlink",$this->XLINK_URI);
-			return $xml->saveXML();
-		} catch(Exception $e) {
-			throw new XMLShiftException(
-				"Error while marshalling xml: {$e->getMessage()}\n\n{$e->getTraceAsString()}", $e->getCode());
+			if($propertyAnno->isAnnotationPresent("XmlElement", $key)){
+				if(isset($value) && !is_scalar($value)){
+					throw new UnexpectedValueException("@XmlElement should be on a scalar value, but found ".gettype($value));
+				}
+				
+				$xmlElementAnnValue = $propertyAnno->getAnnotationValue("XmlElement",$key);
+				if($xmlElementAnnValue){
+					$childElement = $xml->createElement($xmlElementAnnValue,$key);
+				}else{
+					$childElement = $xml->createElement($key,$value);
+				}				
+				$parentNode->appendChild($childElement);
+				
+			}else if($propertyAnno->isAnnotationPresent("XmlAttribute", $key)){
+				
+				if(isset($value) && !is_scalar($value)){
+					throw new UnexpectedValueException("@XmlAttribute should be on a scalar value, but found ".gettype($value));
+				}
+				
+				$xmlAttributeAnnValue = $propertyAnno->getAnnotationValue("XmlAttribute",$key);
+				if($xmlAttributeAnnValue){
+					$parentNode->setAttribute($xmlAttributeAnnValue, $value);
+				}else{
+					$parentNode->setAttribute($key, $value);
+				}			
+				
+			}else if($propertyAnno->isAnnotationPresent("XmlRefLink", $key)){
+				if(isset($value) && !is_object($value)){
+					throw new UnexpectedValueException("@XmlRefLink should be on an object value, but found ".gettype($value));
+				}
+				
+				$childElement = $xml->createElement($key);
+				$childElement->appendChild($this->createRefLinkElement($xml, $value));
+				$parentNode->appendChild($childElement);				
+			}else if( $propertyAnno->isAnnotationPresent("XmlRefLinkMany", $key) ){
+				if(isset($value) && !is_array($value)){
+					throw new UnexpectedValueException("@XmlRefLinkMany should be on an array value, but found ".gettype($value));			
+				}
+				
+				$childElement = $xml->createElement($key); 
+				foreach ($value as $item) {
+					$childElement->appendChild($this->createRefLinkElement($xml, $item));
+				}				
+				$parentNode->appendChild($childElement);
+			}else if($propertyAnno->isAnnotationPresent("XmlRef", $key)){
+				// Due to the way Propel handles relations, this will probable not apply for Propel based apps.
+				if(!is_object($value)){
+					throw new UnexpectedValueException("@XmlRef should be on object value, but found ".gettype($value)." (try @XmlRefMany)");
+				}
+				$parentNode->appendChild($this->convertObjectToXml($value, $xml));			
+			}else if($propertyAnno->isAnnotationPresent("XmlRefMany", $key)){
+				if(isset($value) && !is_array($value)){
+					throw new UnexpectedValueException("@XmlRef should be on array value, but found ".gettype($value));
+				}
+				
+				foreach($value as $member){
+					$parentNode->appendChild($this->convertObjectToXml($member,$xml));
+				}
+			}			
 		}
-		return null;
+		return $rootNode;
 	}
 
 	/**
@@ -203,6 +223,7 @@ class CoreXMLShift {
 	protected function lookupXmlRefId(DOMElement $node, 
 						ReflectionAnnotate_PropertyAnnotation $propertyAnnotation,
 						$objectProperty, $object) {
+							//TODO rename to lookupXmlRefLink
 		
 		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefLink', $objectProperty);
 		
@@ -345,8 +366,7 @@ class CoreXMLShift {
 		return $value;
 	}
 	
-	private function createRefLinkElement(DOMDocument $xml, $item){
-		$xml->documentElement->setAttribute("xmlns:xlink",$this->XLINK_URI);		
+	private function createRefLinkElement(DOMDocument $xml, $item){		
 		$className = lcfirst(get_class($item));
 		$itemNode = $xml->createElement($className);
  		$itemNode->setAttribute("xlink:href", $this->_idResolver->constructURL($item));
