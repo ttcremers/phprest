@@ -233,15 +233,12 @@ class CoreXMLShift {
 						ReflectionAnnotate_PropertyAnnotation $propertyAnnotation,
 						$objectProperty, $object) {
 		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefLinkMany', $objectProperty);
-
 		$refNode = $node->getElementsByTagName($objectProperty)->item(0);
 		$refChilderen = $refNode->childNodes;
 		// NODEList class is not really a list so we need a for loop
 		$objectList=Array();
 		for ($i=0; $i<= ($refChilderen->length)-1; $i++) {
 			if ($refChilderen->item($i)->tagName==lcfirst($xmlRefClass)) {
-				$itemAttributes = $refChilderen->item($i)->attributes;
-
 				$hrefAttr = $refChilderen->item($i)->getAttributeNS($this->XLINK_URI,"href");
 				if($hrefAttr){
 					array_push($objectList, $this->_idResolver->resolveURL($hrefAttr));
@@ -298,7 +295,7 @@ class CoreXMLShift {
 	 */
 	protected function findObject(DOMDocument $xml) {
 		//TODO this forces rootNodeName == classname. Makes this more flexible.
-		$rootNodeName = $xml->documentElement->tagName;
+		$rootNodeName = ucfirst($xml->documentElement->tagName);
 		return $this->loadClass($rootNodeName);
 	}
 	
