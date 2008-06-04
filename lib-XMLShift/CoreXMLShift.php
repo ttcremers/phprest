@@ -198,8 +198,8 @@ class CoreXMLShift {
 					if(!$attrName) $attrName = $objectProperty;
 					$attrNode = $xml->documentElement->getAttributeNode($attrName);
 					$this->setObjectValue($attrNode, $object, $objectProperty);
-				}elseif ($propertyAnno->isAnnotationPresent('XmlRef', $objectProperty)) {
-					$this->processXmlRef($xml->documentElement, $propertyAnno, $objectProperty, $object);
+				}elseif ($propertyAnno->isAnnotationPresent('XmlRefMany', $objectProperty)) {
+					$this->processXmlRefMany($xml->documentElement, $propertyAnno, $objectProperty, $object);
 				} elseif ($propertyAnno->isAnnotationPresent('XmlRefLinkMany', $objectProperty)) {
 					$this->lookupXmlRefList($xml->documentElement, $propertyAnno, $objectProperty, $object);
 				} elseif ($propertyAnno->isAnnotationPresent('XmlRefLink', $objectProperty)) {
@@ -278,21 +278,24 @@ class CoreXMLShift {
 	 * @param string $objectProperty
 	 * @param object $object
 	 */
-	protected function processXmlRef(DOMElement $node, 
+	protected function processXmlRefMany(DOMElement $node, 
 						ReflectionAnnotate_PropertyAnnotation $propertyAnnotation,
 						$objectProperty, $object) {
-		$xmlRefClass = $propertyAnno->getAnnotationValue('XmlRef', $objectProperty);
+		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefMany', $objectProperty);
 		$refNode = $node->getElementsByTagName($objectProperty)->item(0);
 		$xmlRefObject = $this->loadClass($xmlRefClass);
 		
 		// Create a new DOMDocument with which we can marshall
 		$newDom = new DOMDocument('1.0', 'UTF-8');
+		$refNode = $newDom->importNode($refNode, true);
 		$newDom->appendChild($refNode);
 		
 		// Now unmarshall the node to object.
 		$xmlRefObject = $this->unMarshall($newDom, $xmlRefObject);
 		$method = "set".ucFirst($objectProperty);
-		$object->$method($xmlRefObject);
+		error_log("Method: {$method}");
+		$arr = array($xmlRefObject);
+		$object->$method($arr);
 	}
 	
 	/**
