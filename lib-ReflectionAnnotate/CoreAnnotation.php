@@ -46,7 +46,7 @@ class ReflectionAnnotate_CoreAnnotation {
 	 */
 	protected function extractValueForAnnotation($key, $comment) {
 		$matches = array();
-		$regex = "/".constant('ReflectionAnnotate_CoreAnnotation::TAG_PREFIX').$key.":\s*(\S*)(\r\n|\r|\n)/U";
+		$regex = "/".constant('ReflectionAnnotate_CoreAnnotation::TAG_PREFIX').$key.":\s*(\S*)\s*(\r\n|\r|\n)/U";
 		preg_match($regex, $comment, $matches);
 		if ($matches[1]) 
 			return trim($matches[1]);
