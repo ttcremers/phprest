@@ -71,6 +71,10 @@ class CoreXMLShift {
 			$value = $this->callGetter($object,$key);
 			if(!isset($value) && !$propertyAnno->isAnnotationPresent("XmlIncludeWhenEmpty",$key)) continue;
 			
+			if($propertyAnno->isAnnotationPresent("XmlID",$key)){
+				$value = $this->_idResolver->reverse($object);
+			}
+			
 			if($propertyAnno->isAnnotationPresent("XmlContainerElement", $key)){
 				$parentNode = $xml->createElement($propertyAnno->getAnnotationValue("XmlContainerElement", $key));
 				$rootNode->appendChild($parentNode);
