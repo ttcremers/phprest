@@ -35,6 +35,7 @@ class XMLAdapter implements AdapterInterface {
 			$xmlShift = new CoreXMLShift($classNamespace ? $classNamespace : null);
 			$xmlShift->setIDResolver($this->loadIdResolver($serviceConfig));
 			$response->body=$xmlShift->marshall($contentObjectRep);
+			$response->mimeType = "application/xml";
 			return true;
 		} catch (XMLShiftException $e) {
 			throw new RESTException($e->getMessage(), $e->getCode() ? $e->getCode() : 500 );
