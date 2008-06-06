@@ -282,19 +282,26 @@ class CoreXMLShift {
 						ReflectionAnnotate_PropertyAnnotation $propertyAnnotation,
 						$objectProperty, $object) {
 		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefMany', $objectProperty);
-		$refNode = $node->getElementsByTagName($objectProperty)->item(0);
-		$xmlRefObject = $this->loadClass($xmlRefClass);
 		
-		// Create a new DOMDocument with which we can marshall
-		$newDom = new DOMDocument('1.0', 'UTF-8');
-		$refNode = $newDom->importNode($refNode, true);
-		$newDom->appendChild($refNode);
+		$refNodeList = $node->getElementsByTagName(lcfirst($xmlRefClass));
+		$arr = array();
+
+		for ($i=0; $i<= ($refNodeList->length)-1; $i++) {
+			$refNode = $refNodeList->item($i);
+			
+			$xmlRefObject = $this->loadClass($xmlRefClass);
 		
-		// Now unmarshall the node to object.
-		$xmlRefObject = $this->unMarshall($newDom, $xmlRefObject);
+			// Create a new DOMDocument with which we can marshall
+			$newDom = new DOMDocument('1.0', 'UTF-8');
+			$refNode = $newDom->importNode($refNode, true);
+			$newDom->appendChild($refNode);
+			
+			// Now unmarshall the node to object.
+			$xmlRefObject = $this->unMarshall($newDom, $xmlRefObject);
+			$arr[] = $xmlRefObject;
+		}
+
 		$method = "set".ucFirst($objectProperty);
-		error_log("Method: {$method}");
-		$arr = array($xmlRefObject);
 		$object->$method($arr);
 	}
 	
