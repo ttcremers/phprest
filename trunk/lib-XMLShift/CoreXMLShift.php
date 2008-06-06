@@ -89,7 +89,7 @@ class CoreXMLShift {
 				
 				$xmlElementAnnValue = $propertyAnno->getAnnotationValue("XmlElement",$key);
 				if($xmlElementAnnValue){
-					$childElement = $xml->createElement($xmlElementAnnValue,$key);
+					$childElement = $xml->createElement($xmlElementAnnValue, $value);
 				}else{
 					$childElement = $xml->createElement($key,$value);
 				}				
