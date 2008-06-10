@@ -119,17 +119,9 @@ class CoreXMLShift {
 			}else if( $propertyAnno->isAnnotationPresent("XmlRefLinkMany", $key) ){
 				if(isset($value) && !is_array($value)){
 					throw new UnexpectedValueException("@XmlRefLinkMany should be on an array value, but found ".gettype($value));			
-				}
-				
-				if(!$propertyAnno->isAnnotationPresent("XmlRefDirect",$key)){
-					$childElement = $xml->createElement($key);
-					$parentNode->appendChild($childElement);
-				}else{
-					$childElement = $parentNode;
-				}
-				
+				}				
 				foreach ($value as $item) {
-					$childElement->appendChild($this->createRefLinkElement($xml, $item));
+					$parentNode->appendChild($this->createRefLinkElement($xml, $item));
 				}				
 				
 			}else if($propertyAnno->isAnnotationPresent("XmlRef", $key)){
