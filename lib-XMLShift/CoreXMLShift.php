@@ -121,11 +121,17 @@ class CoreXMLShift {
 					throw new UnexpectedValueException("@XmlRefLinkMany should be on an array value, but found ".gettype($value));			
 				}
 				
-				$childElement = $xml->createElement($key); 
+				if(!$propertyAnno->isAnnotationPresent("XmlRefDirect",$key)){
+					$childElement = $xml->createElement($key);
+					$parentNode->appendChild($childElement);
+				}else{
+					$childElement = $parentNode;
+				}
+				
 				foreach ($value as $item) {
 					$childElement->appendChild($this->createRefLinkElement($xml, $item));
 				}				
-				$parentNode->appendChild($childElement);
+				
 			}else if($propertyAnno->isAnnotationPresent("XmlRef", $key)){
 				// Due to the way Propel handles relations, this will probable not apply for Propel based apps.
 				if(!is_object($value)){
