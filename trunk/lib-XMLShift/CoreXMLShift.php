@@ -138,7 +138,12 @@ class CoreXMLShift {
 				foreach($value as $member){
 					$parentNode->appendChild($this->convertObjectToXml($member,$xml));
 				}
-			}			
+			}else if($propertyAnno->isAnnotationPresent("XmlTextnode", $key)){
+				if(!is_scalar($value)){
+					throw new UnexpectedValueException("@XmlRef should be on a scalar value, but found ".gettype($value));
+				}
+				$parentNode->nodeValue = $value;
+			}
 		}
 		return $rootNode;
 	}
