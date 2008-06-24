@@ -112,10 +112,7 @@ class CoreXMLShift {
 				if(isset($value) && !is_object($value)){
 					throw new UnexpectedValueException("@XmlRefLink should be on an object value, but found ".gettype($value));
 				}
-
-				$childElement = $xml->createElement($key);
-				$childElement->appendChild($this->createRefLinkElement($xml, $value));
-				$parentNode->appendChild($childElement);
+				$parentNode->appendChild($this->createRefLinkElement($xml, $value));
 			}else if( $propertyAnno->isAnnotationPresent("XmlRefLinkMany", $key) ){
 				if(isset($value) && !is_array($value)){
 					throw new UnexpectedValueException("@XmlRefLinkMany should be on an array value, but found ".gettype($value));
