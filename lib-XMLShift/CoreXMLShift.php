@@ -166,7 +166,7 @@ class CoreXMLShift {
 		$xpath = $this->getDOMXPath($xml);
 
 		if($this->_schemalocation)
-			$this->validate($xml,$this->_schemalocation);
+			//$this->validate($xml,$this->_schemalocation);
 
 		// If object is null we try to look it up.
 		if (!is_object($object)) {
@@ -230,9 +230,10 @@ class CoreXMLShift {
 		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefLink', $objectProperty);
 
 		$expr = $this->buildXPathExpression($object, $objectProperty);
-		$node = $this->getDOMXPath($node)->query($exp);
+		$expr .= "/@xlink:href";
+		$node = $this->getDOMXPath($node)->query($expr);
 
-		$xmlHref = $node->nodeValue();
+		$xmlHref = $node->item(0)->nodeValue;
 
 		if($xmlHref){
 			$resolvedObject = $this->_idResolver->resolveURL($xmlHref);
@@ -383,7 +384,7 @@ class CoreXMLShift {
 
 	private function createRefLinkElement(DOMDocument $xml, $item){
 		$className = lcfirst(get_class($item));
-		$itemNode = $xml->createElement($className);
+		$itemNode = $xml->createElement($className); // TODO make this look at @XmlRootElement in the target class
  		$itemNode->setAttribute("xlink:href", $this->_idResolver->constructURL($item));
  		return $itemNode;
 	}
