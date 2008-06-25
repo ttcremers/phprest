@@ -161,6 +161,9 @@ class CoreXMLShift {
 			$xml->normalizeDocument();
 		}
 
+		$xpath = new DOMXPath($xml);
+		$xpath->registerNamespace("koms",$xml->documentElement->getAttribute("xmlns"));
+
 		if($this->_schemalocation)
 			$this->validate($xml,$this->_schemalocation);
 
@@ -186,10 +189,9 @@ class CoreXMLShift {
 			}
 
 			if ($propertyAnno->isAnnotationPresent('XmlElement', $objectProperty)) {
-				$elementName = $propertyAnno->getAnnotationValue('XmlElement', $objectProperty);
-				if(!$elementName) $elementName = $objectProperty;
+				$expr = $this->buildXPathExpression($object, $objectProperty);
+				$node = $xpath->query($expr, $xml->documentElement)->item(0);
 
-				$node = $node->getElementsByTagName($elementName)->item(0);
 				$this->setObjectValue($node, $object, $objectProperty);
 			} elseif ($propertyAnno->isAnnotationPresent('XmlAttribute', $objectProperty)) {
 				$attrName = $propertyAnno->getAnnotationValue('XmlAttribute', $objectProperty);
@@ -400,6 +402,45 @@ class CoreXMLShift {
 
 	public function setSchemaLocation($filename){
 		$this->_schemalocation = $filename;
+	}
+
+	/**
+	 * Builds an XPathExpression to get to the given property withing the given object.
+	 */
+	public function buildXPathExpression($object, $property){
+		$expr = '';
+		$classAnno = new ReflectionAnnotate_ClassAnnotation($object);
+		$propertyAnno = new ReflectionAnnotate_PropertyAnnotation($object);
+
+		$rootElement = $classAnno->getAnnotationValue("XmlRootElement",$property);
+		if(!$rootElement)  $rootElement = lcfirst(get_class($object));
+		$expr .= "//koms:".$rootElement;
+
+		if($propertyAnno->isAnnotationPresent("XmlTextnode", $property)){
+			return $expr;
+		}
+
+		if($propertyAnno->isAnnotationPresent("XmlContainerElement", $property)){
+			$containerName = $propertyAnno->getAnnotationValue("XmlContainerElement", $property);
+			$expr .= "/{$containerName}";
+		}
+
+		if($propertyAnno->isAnnotationPresent("XmlElement", $property)){
+			$elementName = $propertyAnno->getAnnotationValue("XmlElement", $property);
+			if(!$elementName) $elementName = $property;
+
+			$expr .= "/koms:{$elementName}";
+		}elseif($propertyAnno->isAnnotationPresent("XmlAttribute", $property)){
+			$attributeName = $propertyAnno->getAnnotationValue("XmlAttribute", $property);
+			if(!$attributeName) $attributeName = $property;
+
+			$expr .= "/@{$attributeName}";
+		}else{
+			// TODO implement for XmlRef, XmlRefMany, XmlRefLink, XmlRefLinkMany
+			throw new XMLShiftException("NOT IMPLEMENTED");
+		}
+
+		return $expr;
 	}
 }
 
