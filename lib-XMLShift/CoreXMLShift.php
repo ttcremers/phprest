@@ -28,6 +28,8 @@ class CoreXMLShift {
 
 	private $XLINK_URI = "http://www.w3.org/1999/xlink";
 
+	private $XPATH_PREFIX = "prefix";
+
 	private $_schemalocation;
 
 	/**
@@ -161,8 +163,7 @@ class CoreXMLShift {
 			$xml->normalizeDocument();
 		}
 
-		$xpath = new DOMXPath($xml);
-		$xpath->registerNamespace("koms",$xml->documentElement->getAttribute("xmlns"));
+		$xpath = $this->getDOMXPath($xml);
 
 		if($this->_schemalocation)
 			$this->validate($xml,$this->_schemalocation);
@@ -204,7 +205,7 @@ class CoreXMLShift {
 			} elseif ($propertyAnno->isAnnotationPresent('XmlRefLinkMany', $objectProperty)) {
 				$this->lookupXmlRefList($xml->documentElement, $propertyAnno, $objectProperty, $object);
 			} elseif ($propertyAnno->isAnnotationPresent('XmlRefLink', $objectProperty)) {
-				$this->lookupXmlRefId($xml->documentElement, $propertyAnno, $objectProperty, $object);
+				$this->lookupXmlRefLink($xml->documentElement, $propertyAnno, $objectProperty, $object);
 			} elseif ($propertyAnno->isAnnotationPresent('XmlTextnode', $objectProperty)) {
 				$this->setObjectValue($xml->documentElement, $object, $objectProperty);
 			}
@@ -222,10 +223,9 @@ class CoreXMLShift {
 	 * @param string $objectProperty Name of the property where we set the object
 	 * @param object $object to object on which we call the setter with the object
 	 */
-	protected function lookupXmlRefId(DOMElement $node,
+	protected function lookupXmlRefLink(DOMElement $node,
 						ReflectionAnnotate_PropertyAnnotation $propertyAnnotation,
 						$objectProperty, $object) {
-							//TODO rename to lookupXmlRefLink
 
 		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefLink', $objectProperty);
 
@@ -285,12 +285,14 @@ class CoreXMLShift {
 						$objectProperty, $object) {
 		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRefMany', $objectProperty);
 
-		$refNodeList = $node->getElementsByTagName(lcfirst($xmlRefClass));
+		// Get the proper nodes
+		$expr = $this->buildXPathExpression($object, $objectProperty);
+		$refNodeList = $this->getDOMXPath($node)->query($expr);
+
 		$arr = array();
-
 		for ($i=0; $i<= ($refNodeList->length)-1; $i++) {
-			$refNode = $refNodeList->item($i);
 
+			$refNode = $refNodeList->item($i);
 			$xmlRefObject = $this->loadClass($xmlRefClass);
 
 			// Create a new DOMDocument with which we can marshall
@@ -405,7 +407,7 @@ class CoreXMLShift {
 	}
 
 	/**
-	 * Builds an XPathExpression to get to the given property withing the given object.
+	 * Builds an XPathExpression to get to the given property within the given object.
 	 */
 	public function buildXPathExpression($object, $property){
 		$expr = '';
@@ -414,7 +416,7 @@ class CoreXMLShift {
 
 		$rootElement = $classAnno->getAnnotationValue("XmlRootElement",$property);
 		if(!$rootElement)  $rootElement = lcfirst(get_class($object));
-		$expr .= "//koms:".$rootElement;
+		$expr .= "//{$this->XPATH_PREFIX}:{$rootElement}";
 
 		if($propertyAnno->isAnnotationPresent("XmlTextnode", $property)){
 			return $expr;
@@ -422,25 +424,45 @@ class CoreXMLShift {
 
 		if($propertyAnno->isAnnotationPresent("XmlContainerElement", $property)){
 			$containerName = $propertyAnno->getAnnotationValue("XmlContainerElement", $property);
-			$expr .= "/{$containerName}";
+			$expr .= "/{$this->XPATH_PREFIX}:{$containerName}";
 		}
 
 		if($propertyAnno->isAnnotationPresent("XmlElement", $property)){
 			$elementName = $propertyAnno->getAnnotationValue("XmlElement", $property);
 			if(!$elementName) $elementName = $property;
 
-			$expr .= "/koms:{$elementName}";
+			$expr .= "/{$this->XPATH_PREFIX}:{$elementName}";
 		}elseif($propertyAnno->isAnnotationPresent("XmlAttribute", $property)){
 			$attributeName = $propertyAnno->getAnnotationValue("XmlAttribute", $property);
 			if(!$attributeName) $attributeName = $property;
 
-			$expr .= "/@{$attributeName}";
-		}else{
-			// TODO implement for XmlRef, XmlRefMany, XmlRefLink, XmlRefLinkMany
-			throw new XMLShiftException("NOT IMPLEMENTED");
+			$expr .= "/@{$this->XPATH_PREFIX}:{$attributeName}";
+		}else{ // Handle references to other classes
+			if($propertyAnno->isAnnotationPresent("XmlRef", $property)) $className = $propertyAnno->getAnnotationValue("XmlRef", $property);
+			elseif($propertyAnno->isAnnotationPresent("XmlRefMany", $property)) $className = $propertyAnno->getAnnotationValue("XmlRefMany", $property);
+			elseif($propertyAnno->isAnnotationPresent("XmlRefLink", $property)) $className = $propertyAnno->getAnnotationValue("XmlRefLink", $property);
+			elseif($propertyAnno->isAnnotationPresent("XmlRefLinkMany", $property)) $className = $propertyAnno->getAnnotationValue("XmlRefLinkMany", $property);
+
+			if($className){
+				$foreign = $this->loadClass($className);
+				$foreignClassAnno = new ReflectionAnnotate_ClassAnnotation($foreign);
+				$foreignRoot = $foreignClassAnno->getAnnotationValue("XmlRootElement", $className);
+				if(!$foreignRoot) $foreignRoot = $className;
+
+				$expr .= "/{$this->XPATH_PREFIX}:{$foreignRoot}";
+			}
 		}
 
 		return $expr;
+	}
+
+	public function getDOMXPath(DOMNode $node){
+		if($node instanceof DOMDocument) $xml = $node;
+		else $xml = $node->ownerDocument;
+		$xpath = new DOMXPath($xml);
+		$xpath->registerNamespace($this->XPATH_PREFIX,$xml->documentElement->getAttribute("xmlns"));
+
+		return $xpath;
 	}
 }
 
