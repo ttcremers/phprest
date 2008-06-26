@@ -180,6 +180,7 @@ class CoreXMLShift {
 		$classAnno = new ReflectionAnnotate_ClassAnnotation($object);
 		$propertyAnno = new ReflectionAnnotate_PropertyAnnotation($object);
 		$elements = Array();
+
 		foreach (get_object_vars($object) as $objectProperty => $value) {
 
 			if($propertyAnno->isAnnotationPresent('XmlContainerElement', $objectProperty)){
@@ -191,6 +192,7 @@ class CoreXMLShift {
 
 			if ($propertyAnno->isAnnotationPresent('XmlElement', $objectProperty)) {
 				$expr = $this->buildXPathExpression($object, $objectProperty);
+				error_log($expr);
 				$node = $xpath->query($expr, $xml->documentElement)->item(0);
 
 				$this->setObjectValue($node, $object, $objectProperty);
@@ -416,9 +418,11 @@ class CoreXMLShift {
 		$classAnno = new ReflectionAnnotate_ClassAnnotation($object);
 		$propertyAnno = new ReflectionAnnotate_PropertyAnnotation($object);
 
-		$rootElement = $classAnno->getAnnotationValue("XmlRootElement",$property);
+		$useNamespace = $classAnno->isAnnotationPresent("XmlNamespace");
+		$rootElement = $classAnno->getAnnotationValue("XmlRootElement");
 		if(!$rootElement)  $rootElement = lcfirst(get_class($object));
-		$expr .= "//{$this->prefixXPath($rootElement)}";
+		$expr .= "//{$this->prefixXPath($rootElement, $useNamespace)}";
+
 
 		if($propertyAnno->isAnnotationPresent("XmlTextnode", $property)){
 			return $expr;
@@ -426,19 +430,19 @@ class CoreXMLShift {
 
 		if($propertyAnno->isAnnotationPresent("XmlContainerElement", $property)){
 			$containerName = $propertyAnno->getAnnotationValue("XmlContainerElement", $property);
-			$expr .= "/{$this->prefixXPath($containerName)}";
+			$expr .= "/{$this->prefixXPath($containerName, $useNamespace)}";
 		}
 
 		if($propertyAnno->isAnnotationPresent("XmlElement", $property)){
 			$elementName = $propertyAnno->getAnnotationValue("XmlElement", $property);
 			if(!$elementName) $elementName = $property;
 
-			$expr .= "/{$this->prefixXPath($elementName)}";
+			$expr .= "/{$this->prefixXPath($elementName, $useNamespace)}";
 		}elseif($propertyAnno->isAnnotationPresent("XmlAttribute", $property)){
 			$attributeName = $propertyAnno->getAnnotationValue("XmlAttribute", $property);
 			if(!$attributeName) $attributeName = $property;
 
-			$expr .= "/@{$this->prefixXPath($attributeName)}";
+			$expr .= "/@{$this->prefixXPath($attributeName, $useNamespace)}";
 		}else{ // Handle references to other classes
 			if($propertyAnno->isAnnotationPresent("XmlRef", $property)) $className = $propertyAnno->getAnnotationValue("XmlRef", $property);
 			elseif($propertyAnno->isAnnotationPresent("XmlRefMany", $property)) $className = $propertyAnno->getAnnotationValue("XmlRefMany", $property);
@@ -451,7 +455,7 @@ class CoreXMLShift {
 				$foreignRoot = $foreignClassAnno->getAnnotationValue("XmlRootElement", $className);
 				if(!$foreignRoot) $foreignRoot = $className;
 
-				$expr .= "/{$this->prefixXPath($foreignRoot)}";
+				$expr .= "/{$this->prefixXPath($foreignRoot, $useNamespace)}";
 			}
 		}
 
@@ -470,8 +474,8 @@ class CoreXMLShift {
 	/**
 	 * Prefixes $nodeName with default prefix if necessarie (i.e. no prefix yet)
 	 */
-	public function prefixXPath($nodeName){
-		if(strpos($nodeName, ':')) return $nodeName;
+	public function prefixXPath($nodeName, $useNamespace){
+		if(!$useNamespace || strpos($nodeName, ':')) return $nodeName;
 		else return "{$this->XPATH_PREFIX}:{$nodeName}";
 	}
 }
