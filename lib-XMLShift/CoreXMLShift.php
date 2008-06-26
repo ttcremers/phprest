@@ -321,7 +321,12 @@ class CoreXMLShift {
 	 * @param string $property Name of property to set
 	 */
 	protected function setObjectValue($node, $object, $property) {
-		$value = $node->nodeValue;
+		$propertyAnno = new ReflectionAnnotate_PropertyAnnotation($object);
+		if($propertyAnno->isAnnotationPresent("XmlID", $property) && $node->nodeValue){
+			$value = $this->_idResolver->reverse($node->nodeValue);
+		} else{
+			$value = $node->nodeValue;
+		}
 		$method = "set".ucFirst($property);
 		$object->$method($value);
 	}
