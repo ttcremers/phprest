@@ -192,7 +192,6 @@ class CoreXMLShift {
 
 			if ($propertyAnno->isAnnotationPresent('XmlElement', $objectProperty)) {
 				$expr = $this->buildXPathExpression($object, $objectProperty);
-				error_log($expr);
 				$node = $xpath->query($expr, $xml->documentElement)->item(0);
 
 				$this->setObjectValue($node, $object, $objectProperty);
@@ -295,9 +294,7 @@ class CoreXMLShift {
 
 		$arr = array();
 		for ($i=0; $i<= ($refNodeList->length)-1; $i++) {
-
 			$refNode = $refNodeList->item($i);
-			$xmlRefObject = $this->loadClass($xmlRefClass);
 
 			// Create a new DOMDocument with which we can marshall
 			$newDom = new DOMDocument('1.0', 'UTF-8');
