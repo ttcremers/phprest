@@ -17,11 +17,11 @@ class XMLAdapter implements AdapterInterface {
 		try {
 			$xmlShift = new CoreXMLShift();
 			$xmlShift->setIDResolver($this->loadIdResolver($serviceConfig));
-			
+
 			$schemaLocation = $serviceConfig->adapterSection['relax-schema-location'];
 			if($schemaLocation)
 				$xmlShift->setSchemaLocation($schemaLocation);
-			
+
 			return $xmlShift->unMarshall($request->body);
 		} catch (Exception $e) {
 			throw new RESTException($e->getMessage(), $e->getCode() ? $e->getCode() : 500 );
@@ -47,7 +47,7 @@ class XMLAdapter implements AdapterInterface {
 		// Load the IDResolver if any
 		$xmlIDResolverClass = $serviceConfig->adapterSection['xml-idresolver-class'];
 		if ($xmlIDResolverClass) {
-			$resolver = CoreUtil::loadCoreClass($xmlIDResolverClass);			
+			$resolver = CoreUtil::loadCoreClass($xmlIDResolverClass);
 		}
 		return $resolver;
 	}
