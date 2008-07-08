@@ -10,7 +10,7 @@
  * @package phpREST
  */
 interface ServiceInterface {
-	public function service($request, $response, $contentAdapter, $serviceConfig);
+	public function service(Request $request, Response $response, AdapterInterface $contentAdapter, RESTServiceConfig $serviceConfig);
 	public function get();
 	public function post();
 	public function put();
