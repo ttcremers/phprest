@@ -126,7 +126,9 @@ class CoreService implements ServiceInterface {
 		$contentObjectRep = $this->_contentAdapter->bodyRead($this->_request, $this->_serviceConfig);
 		// Call the CRUD method on the resource
 		$this->_resource->create($contentObjectRep, $this->_response);
-		if($this->_response->statusCode == 200) $this->notifyObservers("CREATE",$this->_request->body);
+		if($this->_response->statusCode == 200){
+				$this->notifyObservers("CREATE", $this->_response->body);
+		}
 	}
 
 	public function put() {
@@ -134,6 +136,9 @@ class CoreService implements ServiceInterface {
 		$contentObjectRep = $this->_contentAdapter->bodyRead($this->_request, $this->_serviceConfig);
 		// Call the CRUD method on the resource
 		$this->_resource->update($contentObjectRep, $this->_response);
+		if($this->_response->statusCode == 200){
+				$this->notifyObservers("UPDATE", $this->_response->body);
+		}
 	}
 
 	public function delete() {
