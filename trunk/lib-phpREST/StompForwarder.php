@@ -16,7 +16,7 @@ class StompForwarder implements Observer{
 		if($action == "CREATE" | $action == "UPDATE"){
 			$stomp = new Stomp($this->brokerUrl);
 			$stomp->connect();
-			$stomp->send($this->queue, $value, null, true);
+			$stomp->send($this->queue, $value, null, false);
 			$stomp->disconnect();
 		}
 	}
