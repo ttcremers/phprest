@@ -69,7 +69,6 @@ class CoreService implements ServiceInterface {
 
 	private function _loadObservers(){
 		$observers = array();
-		error_log(var_export($this->_serviceConfig->observers, true));
 		foreach($this->_serviceConfig->observers as $observerClass){
 			$observers[] = $this->_loadObserver($observerClass);
 		}
@@ -96,7 +95,6 @@ class CoreService implements ServiceInterface {
 			$url = substr($this->_request->url[1], $appURLLength);
 
 		preg_match("/^\/(.*)\/|$/",$this->_request->url[1], $matches);
-		error_log($this->_request->url[1]);
 		$resourceName=$matches[1];
 		if (!$resourceName)
 			throw new RestException("Unable to extract resource name from URL: ". $this->_request->url[1], 500);
