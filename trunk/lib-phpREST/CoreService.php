@@ -113,9 +113,9 @@ class CoreService implements ServiceInterface {
 
 	public function get() {
 		$contentObjectRep = $this->_resource->select($this->_response);
-		if(!$contentObjectRep) throw new RESTException("Could not find a resource at URL {$this->_request->fullUrl}",404);
+		if(!$contentObjectRep && !$this->_response->statusCode) throw new RESTException("Could not find a resource at URL {$this->_request->fullUrl}",404);
 		// Use the adapter to create the body representation of the object
-		$resourceData = $this->_contentAdapter->bodyWrite(
+		if($contentObjectRep) $resourceData = $this->_contentAdapter->bodyWrite(
 							$contentObjectRep, $this->_response, $this->_serviceConfig);
 	}
 
