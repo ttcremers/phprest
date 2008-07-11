@@ -190,6 +190,8 @@ class CoreXMLShift {
 				$node = $xml->documentElement;
 			}
 
+			if(!$node) continue;
+
 			if ($propertyAnno->isAnnotationPresent('XmlElement', $objectProperty)) {
 				$expr = $this->buildXPathExpression($object, $objectProperty);
 				$node = $xpath->query($expr, $xml->documentElement)->item(0);
@@ -198,7 +200,6 @@ class CoreXMLShift {
 			} elseif ($propertyAnno->isAnnotationPresent('XmlAttribute', $objectProperty)) {
 				$attrName = $propertyAnno->getAnnotationValue('XmlAttribute', $objectProperty);
 				if(!$attrName) $attrName = $objectProperty;
-
 				$attrNode = $node->getAttributeNode($attrName);
 				$this->setObjectValue($attrNode, $object, $objectProperty);
 			} elseif ($propertyAnno->isAnnotationPresent('XmlRef', $objectProperty)){
