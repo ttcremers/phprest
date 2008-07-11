@@ -125,8 +125,7 @@ class CoreService implements ServiceInterface {
 		// Call the CRUD method on the resource
 		$this->_resource->create($contentObjectRep, $this->_response);
 		if($this->_response->statusCode == 200){
-			//FIXME don't echo the request body, marshall $contentObjectRep instead. Missing added info.
-				$this->notifyObservers("CREATE", $this->_request->body);
+				$this->notifyObservers("CREATE", $contentObjectRep);
 		}
 	}
 
@@ -136,8 +135,7 @@ class CoreService implements ServiceInterface {
 		// Call the CRUD method on the resource
 		$this->_resource->update($contentObjectRep, $this->_response);
 		if($this->_response->statusCode == 200){
-			//FIXME don't echo the request body, marshall $contentObjectRep instead. Missing added info.
-				$this->notifyObservers("UPDATE", $this->_request->body);
+				$this->notifyObservers("UPDATE", $contentObjectRep);
 		}
 	}
 
