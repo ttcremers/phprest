@@ -201,6 +201,8 @@ class CoreXMLShift {
 
 				$attrNode = $node->getAttributeNode($attrName);
 				$this->setObjectValue($attrNode, $object, $objectProperty);
+			} elseif ($propertyAnno->isAnnotationPresent('XmlRef', $objectProperty)){
+				 $this->processXmlRef($xml->documentElement, $propertyAnno, $objectProperty, $object);
 			} elseif ($propertyAnno->isAnnotationPresent('XmlRefMany', $objectProperty)) {
 				$this->processXmlRefMany($xml->documentElement, $propertyAnno, $objectProperty, $object);
 			} elseif ($propertyAnno->isAnnotationPresent('XmlRefLinkMany', $objectProperty)) {
@@ -211,6 +213,8 @@ class CoreXMLShift {
 				$this->setObjectValue($xml->documentElement, $object, $objectProperty);
 			}
 		}
+		$a = get_class($object);
+		$b = ($a == "Status") ? $object->getStatus() : "No";
 		return $object;
 	}
 
@@ -275,6 +279,44 @@ class CoreXMLShift {
 		$object->$method($objectList);
 	}
 
+	protected function processXmlRef(DOMElement $node,
+						ReflectionAnnotate_PropertyAnnotation $propertyAnnotation,
+						$objectProperty, $object) {
+		$xmlRefClass = $propertyAnnotation->getAnnotationValue('XmlRef', $objectProperty);
+
+		$arr = $this->doXmlRef($node,$objectProperty, $object);
+		if(is_array($arr) && count($arr) >= 1){
+					$method = "set".ucFirst($objectProperty);
+					$object->$method($arr[0]);
+		}
+
+	}
+
+	/**
+	 * Used by processXmlRefMany() and processXmlRef()
+	 *
+	 */
+	private function doXmlRef(DOMElement $node, $objectProperty, $object){
+		// Get the proper nodes
+		$expr = $this->buildXPathExpression($object, $objectProperty);
+		$refNodeList = $this->getDOMXPath($node)->query($expr);
+
+		$arr = array();
+		for ($i=0; $i<= ($refNodeList->length)-1; $i++) {
+			$refNode = $refNodeList->item($i);
+
+			// Create a new DOMDocument with which we can marshall
+			$newDom = new DOMDocument('1.0', 'UTF-8');
+			$refNode = $newDom->importNode($refNode, true);
+			$newDom->appendChild($refNode);
+
+			// Now unmarshall the node to object.
+			$xmlRefObject = $this->unMarshall($newDom, null);
+			$arr[] = $xmlRefObject;
+		}
+		return $arr;
+	}
+
 	/**
 	 * Used to unmarshall an XMLShift object as child of an node
 	 *
@@ -292,19 +334,7 @@ class CoreXMLShift {
 		$expr = $this->buildXPathExpression($object, $objectProperty);
 		$refNodeList = $this->getDOMXPath($node)->query($expr);
 
-		$arr = array();
-		for ($i=0; $i<= ($refNodeList->length)-1; $i++) {
-			$refNode = $refNodeList->item($i);
-
-			// Create a new DOMDocument with which we can marshall
-			$newDom = new DOMDocument('1.0', 'UTF-8');
-			$refNode = $newDom->importNode($refNode, true);
-			$newDom->appendChild($refNode);
-
-			// Now unmarshall the node to object.
-			$xmlRefObject = $this->unMarshall($newDom, $xmlRefObject);
-			$arr[] = $xmlRefObject;
-		}
+		$arr = $this->doXmlRef($node,$objectProperty, $object);
 
 		$method = "set".ucFirst($objectProperty);
 		$object->$method($arr);
