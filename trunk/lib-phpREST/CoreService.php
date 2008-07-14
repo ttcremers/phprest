@@ -32,6 +32,8 @@ class CoreService implements ServiceInterface {
 	 */
 	private $_resource=null;
 
+	private $_resourceName;
+
 	/**
 	 * @var RESTServiceConfig
 	 */
@@ -84,7 +86,7 @@ class CoreService implements ServiceInterface {
 
 	private function notifyObservers($action, $value){
 		foreach($this->_observers as $observer){
-			$observer->notify($action, $value);
+			$observer->notify($action, $value, $this->_resourceName);
 		}
 	}
 
@@ -98,6 +100,8 @@ class CoreService implements ServiceInterface {
 		$resourceName=$matches[1];
 		if (!$resourceName)
 			throw new RestException("Unable to extract resource name from URL: ". $this->_request->url[1], 500);
+
+		$this->_resourceName = $resourceName;
 
 		// If resource exsists load it
 		if ($this->_serviceConfig->haveResource($resourceName)) {
