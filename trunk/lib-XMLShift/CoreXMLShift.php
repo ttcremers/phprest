@@ -214,8 +214,6 @@ class CoreXMLShift {
 				$this->setObjectValue($xml->documentElement, $object, $objectProperty);
 			}
 		}
-		$a = get_class($object);
-		$b = ($a == "Status") ? $object->getStatus() : "No";
 		return $object;
 	}
 
