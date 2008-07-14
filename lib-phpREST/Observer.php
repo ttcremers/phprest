@@ -2,6 +2,6 @@
 
 interface Observer{
 	// PHP doesn't have enums, or else $action would be one
-	public function notify($action, $value);
+	public function notify($action, $value, $resource=null);
 }
 ?>
