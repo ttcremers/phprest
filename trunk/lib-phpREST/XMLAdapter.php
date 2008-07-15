@@ -43,7 +43,7 @@ class XMLAdapter implements AdapterInterface {
 		return false;
 	}
 
-	private function loadIdResolver(RESTServiceConfig $serviceConfig){
+	protected function loadIdResolver(RESTServiceConfig $serviceConfig){
 		// Load the IDResolver if any
 		$xmlIDResolverClass = $serviceConfig->adapterSection['xml-idresolver-class'];
 		if ($xmlIDResolverClass) {
