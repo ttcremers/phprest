@@ -39,7 +39,7 @@ class Response {
 		
 		// Output headers
 		foreach (array_keys($this->headers) as $name){
-			header($name.": ".$headers[$name]);
+			header($name.": ". $this->headers[$name]);
 		}
 
 		// Output content
@@ -54,9 +54,7 @@ class Response {
 	 * @param string $value The value to set the header to
 	 */
 	public function setHeader($header, $value) {
-		$headers[$header] = $value;
-		header($header.": ".$value);		
+		$this->headers[$header] = $value;
 	}
-
 }
 ?>
