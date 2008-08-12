@@ -165,8 +165,8 @@ class CoreXMLShift {
 
 		$xpath = $this->getDOMXPath($xml);
 
-		if($this->_schemalocation)
-			$this->validate($xml,$this->_schemalocation);
+		//if($this->_schemalocation)
+		//	$this->validate($xml,$this->_schemalocation);
 
 		// If object is null we try to look it up.
 		if (!is_object($object)) {
