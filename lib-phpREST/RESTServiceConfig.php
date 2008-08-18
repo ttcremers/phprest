@@ -30,7 +30,7 @@ class RESTServiceConfig {
 		$this->applicationURL = $ini_array['resource']['application-url'];
 
 		$this->resourceNamespace = $ini_array['resource']['resource-namespace'];
-		$this->resourceDirectory = $_SERVER['DOCUMENT_ROOT'].
+		$this->resourceDirectory = $_SERVER['DOCUMENT_ROOT'].$ini_array['resource']['resource-parent-dir'].
 									DIRECTORY_SEPARATOR.$this->resourceNamespace;
 		$this->_parseResources();
 
