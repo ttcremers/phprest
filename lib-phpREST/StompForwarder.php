@@ -33,7 +33,8 @@ class StompForwarder implements Observer{
 			$message = $value;
 		}
 
-		if($action == "CREATE" | $action == "UPDATE"){
+		// Do not need notification on UPDATE. KOMS & KSO do not know what to do when on update.
+        if($action == "CREATE") { // || $action == "UPDATE"){
 			$stomp = new Stomp($this->brokerUrl);
 			$stomp->connect();
 			$stomp->send($this->queue, $message, array("resource" => $resource), false);

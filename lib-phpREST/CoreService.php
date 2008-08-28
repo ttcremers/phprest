@@ -138,9 +138,11 @@ class CoreService implements ServiceInterface {
 		$contentObjectRep = $this->_contentAdapter->bodyRead($this->_request, $this->_serviceConfig);
 		// Call the CRUD method on the resource
 		$this->_resource->update($contentObjectRep, $this->_response);
-		if($this->_response->statusCode == 200){
-				$this->notifyObservers("UPDATE", $contentObjectRep);
-		}
+		
+        // Do not need notification on UPDATE. KOMS & KSO do not know what to do when on update.
+        //if($this->_response->statusCode == 200){
+		//		$this->notifyObservers("UPDATE", $contentObjectRep);
+		//}
 	}
 
 	public function delete() {
