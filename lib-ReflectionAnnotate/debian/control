@@ -1,0 +1,12 @@
+Source: lib-php-annotate
+Section: unknown
+Priority: extra
+Maintainer: Sietse de Kaper <sietse@unknown>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.7.2
+
+Package: lib-php-annotate
+Architecture: any
+Depends: php5
+Description: PHP Annotation library
+  PHP Annotation library
