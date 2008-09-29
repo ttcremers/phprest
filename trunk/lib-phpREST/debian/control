@@ -1,11 +1,11 @@
-Source: lib-php-rest
+Source: libphp-rest
 Section: unknown
 Priority: extra
 Maintainer: Sietse de Kaper <sietse@unknown>
 Build-Depends: debhelper (>= 5)
 Standards-Version: 3.7.2
 
-Package: lib-php-rest
+Package: libphp-rest
 Architecture: any
 Depends: php5
 Description: PHP RESTful library
