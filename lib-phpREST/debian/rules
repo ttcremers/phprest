@@ -26,7 +26,7 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
-	#docbook-to-man debian/lib-php-rest.sgml > lib-php-rest.1
+	#docbook-to-man debian/libphp-rest.sgml > libphp-rest.1
 
 	touch $@
 
@@ -44,8 +44,8 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/lib-php-rest.
-	cp *.php ${CURDIR}/debian/lib-php-rest/usr/share/php/phpREST
+	# Add here commands to install the package into debian/libphp-rest.
+	cp *.php ${CURDIR}/debian/libphp-rest/usr/share/php/phpREST
 
 
 # Build architecture-independent files here.

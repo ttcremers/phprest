@@ -1,6 +1,6 @@
-lib-php-rest (1.0-1) unstable; urgency=low
+libphp-rest (1.0-1) unstable; urgency=low
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Initial release
 
  -- Sietse de Kaper <sietse@unknown>  Fri, 26 Sep 2008 13:48:21 +0200
 
