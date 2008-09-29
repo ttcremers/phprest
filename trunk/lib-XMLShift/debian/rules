@@ -43,8 +43,8 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/lib-php-xmlshift.
-	cp *.php ${CURDIR}/debian/lib-php-xmlshift/usr/share/php/XMLShift
+	# Add here commands to install the package into debian/libphp-xmlshift.
+	cp *.php ${CURDIR}/debian/libphp-xmlshift/usr/share/php/XMLShift
 
 
 # Build architecture-independent files here.
