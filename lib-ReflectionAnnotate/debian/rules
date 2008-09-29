@@ -42,8 +42,8 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/lib-php-annotate.
-	cp *.php ${CURDIR}/debian/lib-php-annotate/usr/share/php/phpAnnotate
+	# Add here commands to install the package into debian/libphp-annotate.
+	cp *.php ${CURDIR}/debian/libphp-annotate/usr/share/php/phpAnnotate
 
 
 # Build architecture-independent files here.
