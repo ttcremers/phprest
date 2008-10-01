@@ -10,6 +10,7 @@ class TransactionalService extends CoreService  {
 		try{
 			parent::service($request, $response, $contentAdapter, $serviceConfig);
 			$con->commit();
+            parent::notifyObservers();
 		}catch (Exception $e){
 			error_log("Exception caught, rolling back. $e->getMessage()");
 			$con->rollBack();

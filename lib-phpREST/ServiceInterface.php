@@ -11,7 +11,8 @@
  */
 interface ServiceInterface {
 	public function service(Request $request, Response $response, AdapterInterface $contentAdapter, RESTServiceConfig $serviceConfig);
-	public function get();
+	public function notifyObservers();
+    public function get();
 	public function post();
 	public function put();
 	public function delete();
