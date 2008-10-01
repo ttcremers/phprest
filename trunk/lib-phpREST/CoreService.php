@@ -15,31 +15,33 @@ class CoreService implements ServiceInterface {
 	/**
 	 * @var AdapterInterface
 	 */
-	private $_contentAdapter=null;
+	private $_contentAdapter=NULL;
 
 	/**
 	 * @var Request
 	 */
-	private $_request=null;
+	private $_request=NULL;
 
 	/**
 	 * @var Response
 	 */
-	private $_response=null;
+	private $_response=NULL;
 
 	/**
 	 * @var ResourceInterface
 	 */
-	private $_resource=null;
+	private $_resource=NULL;
 
 	private $_resourceName;
 
 	/**
 	 * @var RESTServiceConfig
 	 */
-	private $_serviceConfig=null;
+	private $_serviceConfig=NULL;
 
-	private $_observers=null;
+	private $_observers=NULL;
+    
+    private $_contentObjectRep=NULL;
 
 	/**
 	 * The service Method is called from the RESTProxy
@@ -84,10 +86,15 @@ class CoreService implements ServiceInterface {
 		return new $className($this->_serviceConfig);
 	}
 
-	private function notifyObservers($action, $value){
-		foreach($this->_observers as $observer){
-			$observer->notify($action, $value, $this->_resourceName);
-		}
+	public function notifyObservers()
+    {
+		if (isset($this->_contentObjectRep) == true)
+        {
+            foreach($this->_observers as $observer){
+                if ($this->_request->method == "post" && $this->_response->statusCode == 200)
+                    $observer->notify("CREATE", $this->_contentObjectRep, $this->_resourceName);
+		    }
+        }
 	}
 
 	private function _loadResource() {
@@ -125,12 +132,9 @@ class CoreService implements ServiceInterface {
 
 	public function post() {
 		// Use the adapter to create the object representation of the content
-		$contentObjectRep = $this->_contentAdapter->bodyRead($this->_request, $this->_serviceConfig);
-		// Call the CRUD method on the resource
-		$this->_resource->create($contentObjectRep, $this->_response);
-		if($this->_response->statusCode == 200){
-				$this->notifyObservers("CREATE", $contentObjectRep);
-		}
+		$this->_contentObjectRep = $this->_contentAdapter->bodyRead($this->_request, $this->_serviceConfig);
+        // Call the CRUD method on the resource
+		$this->_resource->create($this->_contentObjectRep, $this->_response);        
 	}
 
 	public function put() {
@@ -138,12 +142,7 @@ class CoreService implements ServiceInterface {
 		$contentObjectRep = $this->_contentAdapter->bodyRead($this->_request, $this->_serviceConfig);
 		// Call the CRUD method on the resource
 		$this->_resource->update($contentObjectRep, $this->_response);
-		
-        // Do not need notification on UPDATE. KOMS & KSO do not know what to do when on update.
-        //if($this->_response->statusCode == 200){
-		//		$this->notifyObservers("UPDATE", $contentObjectRep);
-		//}
-	}
+    }
 
 	public function delete() {
 		$this->_resource->delete($this->_response);
