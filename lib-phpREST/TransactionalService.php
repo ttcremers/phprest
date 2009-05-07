@@ -12,7 +12,7 @@ class TransactionalService extends CoreService  {
 			$con->commit();
             parent::notifyObservers();
 		}catch (Exception $e){
-			error_log("Exception caught, rolling back. $e->getMessage()");
+			error_log("Exception caught, rolling back. {$e->getMessage()}");
 			$con->rollBack();
 			throw $e;
 		}
